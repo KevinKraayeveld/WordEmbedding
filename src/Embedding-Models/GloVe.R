@@ -10,16 +10,17 @@ iter <- itoken(tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
 tcm <- create_tcm(it = iter, vectorizer = vectorizer)
 
-word_vectors_dim <- 100  # Size of the embedding vector
-window_size <- 10        # Context window size
-iterations <- 10         # Number of iterations
-
 # Train GloVe embeddings
-glove_model <- GloVe$new(rank = word_vectors_dim,
-                         x_max = 100,
-                         learning_rate = 0.2)
+glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
+                         x_max = 100, # maximum number of co-occurrences to use in the weighting function
+                         learning_rate = 0.2, # learning rate for SGD
+                         alpha = 0.75, # the alpha in weighting function formula
+                         lambda = 0, # regularization parameter
+                         shuffle = FALSE)
                   
-glove_model$fit_transform(tcm)
+glove_model$fit_transform(x = tcm, # Co-occurence matrix
+                          n_iter = 50, # number of SGD iterations
+                          convergence_tol = -1) # defines early stopping strategy
 
 # Extract trained word embeddings
 word_embeddings <- glove_model$components

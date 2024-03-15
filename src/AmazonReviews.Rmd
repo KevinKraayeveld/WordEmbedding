@@ -19,7 +19,7 @@ get_new_data = FALSE
 embedding_model = "GloVe"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings = TRUE
+get_new_embeddings = FALSE
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
@@ -52,7 +52,9 @@ if(get_new_embeddings){
 } else{
   file_name <- paste0("vectorized_", embedding_model, ".csv")
   path <- paste0("../data/Vectorized-Reviews/", file_name)
-  fread(path)
+  df <- fread(path)
+  df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
+  df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
 }
 
 ```
