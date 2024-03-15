@@ -1,0 +1,77 @@
+---
+title: "AmazonReviews"
+author: "Kevin Kraayeveld (589908)"
+date: "2024-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+```
+
+```{r config, echo = FALSE}
+get_new_data = TRUE
+
+# Choose embedding model. The choices are:
+# - "word2vec_cbow"
+# - 
+embedding_model = "word2vec_cbow"
+# If you want to run the embeddings file to get new embeddings this is TRUE. 
+# If you have the model saved in a Rdata file then this is FALSE.
+get_new_embeddings = TRUE
+
+# Choose prediction model. The choices are:
+# - "logistic_regression"
+prediction_model = "logistic_regression"
+# If you want to run the prediction file to get new predictions this is TRUE. 
+# If you have the predictions saved in an Rdata file then this is FALSE.
+get_new_predictions = TRUE
+```
+
+## Data preprocessing
+
+```{r read_cleaned_data, echo = FALSE}
+if(get_new_data){
+  source("Preprocessing/Cleaning.R")
+} else{
+  df <- fread("../data/tokenized_reviews.csv")
+  # Splitting the Tokens column into a list of characters
+  df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
+}
+```
+
+## Embedding model
+
+```{r embedding_model, echo = FALSE}
+if(get_new_embeddings){
+  file_name <- paste0(embedding_model, ".R")
+  path <- paste0("Embedding-Models/", file_name)
+  source(path)
+} else{
+  file_name <- paste0("vectorized_", embedding_model, ".csv")
+  path <- paste0("../data/Embedded-Reviews/", file_name)
+  load(path)
+}
+
+```
+
+## Prediction model
+
+```{r prediction_model, echo = FALSE}
+if(get_new_predictions){
+  file_name <- paste0(prediction_model, ".R")
+  path <- paste0("Prediction-Models/", file_name)
+  source(path)
+} else{
+  file_name <- paste0(prediction_model, ".Rdata")
+  path <- paste0("Prediction-Models/", file_name)
+  load(path)
+}
+```
+
+## Evaluation
+
+```{r evaluation, echo = FALSE}
+source("Evaluation/Evaluation.R")
+```

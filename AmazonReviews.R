@@ -1,7 +1,6 @@
 library(data.table)
 library(tidytext)
 library(dplyr)
-library(SnowballC)
 
 # Read data as data.table
 train <- fread("../Data/AmazonReviews/train.csv")
@@ -33,5 +32,26 @@ df$Review <- gsub("[[:punct:]]", "", df$Review)
 # Get stop_words from the tidytext package
 data(stop_words)
 
-# Make a new data.table without the title
-df_review <- df[, Title := NULL]
+# Remove stop words function
+remove_stopwords <- function(text) {
+  # Split the text into individual words
+  words <- unlist(strsplit(text, " "))
+  # Remove stop words
+  words <- words[!tolower(words) %in% stop_words$word]
+  # Combine the words back into a single string
+  cleaned_text <- paste(words, collapse = " ")
+  return(cleaned_text)
+}
+
+# Remove stop words from the Review column
+df[, Review := lapply(Review, remove_stopwords)]
+
+# Remove stop words from the Title column
+df[, Title := lapply(Title, remove_stopwords)]
+
+# Tokenize the Review
+df$Review_Tokens <- sapply(df$Review, function(x) tokenize_words(x))
+df$Title_Tokens <- sapply(df$Title, function(x) tokenize_words(x))
+
+# Write df to a CSV file
+fwrite(df, "cleaned_data.csv")
