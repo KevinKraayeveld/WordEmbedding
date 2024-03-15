@@ -15,11 +15,12 @@ get_new_data = FALSE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
+# - "word2vec_skipgram"
 # - "GloVe"
-embedding_model = "GloVe"
+embedding_model = "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings = FALSE
+get_new_embeddings = TRUE
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
