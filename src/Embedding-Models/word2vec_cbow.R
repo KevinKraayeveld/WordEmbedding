@@ -21,4 +21,4 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
-fwrite(df, "../data/vectorized_word2vec_cbow.csv")
+fwrite(df, "../data/Vectorized-Reviews/vectorized_word2vec_cbow.csv")

@@ -55,7 +55,7 @@ df$Review <- sapply(df$Review, filter_review, vocab = vocabulary$term)
 # Create a column called Review_Tokens
 df$Review_Tokens <- sapply(df$Review, function(review) tokenize_words(review))
 
-df <- df[, .(isPositive, Review_Tokens)]
+df <- df[, .(isPositive, Review, Review_Tokens)]
 
 end_time <- Sys.time()
 # Total execution time
@@ -65,3 +65,6 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 fwrite(df, "../data/tokenized_reviews.csv")
+
+# Write the vocabulary to a CSV file
+saveRDS(vocabulary, file = "../data/Variables/vocabulary.rds")

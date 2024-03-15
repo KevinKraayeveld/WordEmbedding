@@ -11,12 +11,12 @@ library(data.table)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data = TRUE
+get_new_data = FALSE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
-# - 
-embedding_model = "word2vec_cbow"
+# - "GloVe"
+embedding_model = "GloVe"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
 get_new_embeddings = TRUE
@@ -36,6 +36,7 @@ if(get_new_data){
   source("Preprocessing/Cleaning.R")
 } else{
   df <- fread("../data/tokenized_reviews.csv")
+  vocabulary <- readRDS("../data/Variables/vocabulary.rds")
   # Splitting the Tokens column into a list of characters
   df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
 }
@@ -50,8 +51,8 @@ if(get_new_embeddings){
   source(path)
 } else{
   file_name <- paste0("vectorized_", embedding_model, ".csv")
-  path <- paste0("../data/Embedded-Reviews/", file_name)
-  load(path)
+  path <- paste0("../data/Vectorized-Reviews/", file_name)
+  fread(path)
 }
 
 ```
