@@ -3,7 +3,13 @@ library(text2vec)
 library(tm)
 library(tokenizers)
 library(SnowballC)
-library(hash)
+library(parallel)
+library(doParallel)
+
+# Variables for parallel execution
+cores <- detectCores()  # Detect available cores
+cl <- makeCluster(cores)  # Create a cluster for multi-threading
+registerDoParallel(cl)
 
 train <- fread("../data/train.csv")
 test <- fread("../data/test.csv")
@@ -26,7 +32,7 @@ df <- rbind(train, test)
 # Randomly select a number of rows
 set.seed(123)
 total_rows <- nrow(df)
-sample_indices <- sample(total_rows, 20000)
+sample_indices <- sample(total_rows, 10000)
 df <- df[sample_indices]
 
 start_time <- Sys.time()
@@ -56,11 +62,17 @@ tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "e
 print("Creating vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
 print("Pruning vocabulary")
-vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
+pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
+
+words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
 print("Removing tokens that are not in the pruned vocabulary")
 remove_tokens <- Sys.time()
-tokens <- lapply(tokens, intersect, y = vocabulary$term)
+
+tokens <- lapply(tokens, function(token_vec) {
+  setdiff(token_vec, words_to_delete)
+})
+
 end_remove_tokens <- Sys.time()
 total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
 print(paste("Execution time of removing tokens", total_execution_time_tokens))
@@ -83,4 +95,4 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 fwrite(df, "../data/tokenized_reviews.csv")
 
 # Write the vocabulary to a CSV file
-saveRDS(vocabulary, file = "../data/Variables/vocabulary.rds")
+saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
