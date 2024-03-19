@@ -11,13 +11,13 @@ library(data.table)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data = FALSE
+get_new_data = TRUE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
 # - "word2vec_skipgram"
 # - "GloVe"
-embedding_model = "word2vec_cbow"
+embedding_model = "word2vec_skipgram"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
 get_new_embeddings = TRUE

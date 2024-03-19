@@ -1,12 +1,22 @@
 library(word2vec)
 library(data.table)
 library(tokenizers)
+library(parallel)
 
 start_time <- Sys.time()
 
 set.seed(100)
 
-model <- word2vec(x = df$Review_Tokens, type = "cbow", dim = 50, iter = 50)
+# Get the amount of CPU cores on this PC.
+num_cores <- detectCores()
+
+model <- word2vec(x = df$Review_Tokens, 
+                  type = "cbow", 
+                  dim = 50, # Dimension of the word vectors
+                  window = 5L, # Skip length between words
+                  iter = 50, # Number of training iterations
+                  lr = 0.05, # Learning rate
+                  threads = num_cores) # Number of threads to use
 model <- as.matrix(model)
 
 source("Review-Vectorization/Review_vectorization.R")
