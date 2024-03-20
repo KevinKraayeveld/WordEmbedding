@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table", "text2vec", "tm", "tokenizers", "SnowballC", "tidytext")
+packages <- c("data.table", "text2vec", "tm", "tokenizers", "SnowballC", "tidytext", "quanteda")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -14,6 +14,7 @@ library(tm)
 library(tokenizers)
 library(SnowballC)
 library(tidytext)
+library(quanteda)
 
 train <- fread("../data/train.csv")
 test <- fread("../data/test.csv")
@@ -36,7 +37,7 @@ df <- rbind(train, test)
 # Randomly select a number of rows
 set.seed(123)
 total_rows <- nrow(df)
-sample_indices <- sample(total_rows, 10000)
+sample_indices <- sample(total_rows, 100000)
 df <- df[sample_indices]
 
 start_time <- Sys.time()
