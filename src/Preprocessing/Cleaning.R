@@ -48,10 +48,7 @@ print("Finished removing punctuation, starting to remove numbers")
 df$Review <- removeNumbers(df$Review)
 print("Removed numbers, now turning everything lowercase")
 df$Review <- tolower(df$Review)
-print("Everything is now lowercase. Removing stopwords")
-data(stop_words)
-df$Review <- removeWords(df$Review, stop_words$word)
-print("Removed stopwords, now removing whitespace")
+print("Now removing whitespace")
 df$Review <- stripWhitespace(df$Review)
 print("Now removing whitespaces at the first index")
 df$Review <- gsub("^\\s+", "", df$Review)
@@ -59,12 +56,17 @@ df$Review <- gsub("^\\s+", "", df$Review)
 print("Creating tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
 
+print("Removing stop words")
+data(stop_words)
+tokens <- tokens_select(as.tokens(tokens), stop_words$word, selection = "remove")
+tokens <- as.list(tokens)
+
 # Stem the tokens
 print("Stemming tokens")
 tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
 
 # Save the tokens variable
-#saveRDS(tokens, file = "../data/Variables/unpruned_tokens.rds")
+saveRDS(tokens, file = "../data/Variables/unpruned_tokens.rds")
 
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Creating vocabulary")
@@ -73,16 +75,15 @@ print("Pruning vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
-#saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
+saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
 print("Removing tokens that are not in the pruned vocabulary")
 remove_tokens <- Sys.time()
 
-tokens <- lapply(tokens, function(token_vec) {
-  setdiff(token_vec, words_to_delete)
-})
+tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
+tokens <- as.list(tokens)
 
 end_remove_tokens <- Sys.time()
 total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
