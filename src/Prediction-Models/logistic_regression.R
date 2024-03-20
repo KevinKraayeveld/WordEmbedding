@@ -1,3 +1,13 @@
+# List of required packages
+packages <- c("data.table", "caret")
+
+# Check if each package is installed, if not, install it
+for (package in packages) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
 # Importing required libraries
 library(data.table)
 library(caret)

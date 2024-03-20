@@ -1,15 +1,19 @@
+# List of required packages
+packages <- c("data.table", "text2vec", "tm", "tokenizers", "SnowballC", "tidytext")
+
+# Check if each package is installed, if not, install it
+for (package in packages) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
 library(data.table)
 library(text2vec)
 library(tm)
 library(tokenizers)
 library(SnowballC)
-library(parallel)
-library(doParallel)
-
-# Variables for parallel execution
-cores <- detectCores()  # Detect available cores
-cl <- makeCluster(cores)  # Create a cluster for multi-threading
-registerDoParallel(cl)
+library(tidytext)
 
 train <- fread("../data/train.csv")
 test <- fread("../data/test.csv")
@@ -45,7 +49,8 @@ df$Review <- removeNumbers(df$Review)
 print("Removed numbers, now turning everything lowercase")
 df$Review <- tolower(df$Review)
 print("Everything is now lowercase. Removing stopwords")
-df$Review <- removeWords(df$Review, stopwords('en'))
+data(stop_words)
+df$Review <- removeWords(df$Review, stop_words$word)
 print("Removed stopwords, now removing whitespace")
 df$Review <- stripWhitespace(df$Review)
 print("Now removing whitespaces at the first index")
@@ -58,11 +63,17 @@ tokens <- strsplit(df$Review, split = " ", fixed = T)
 print("Stemming tokens")
 tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
 
+# Save the tokens variable
+#saveRDS(tokens, file = "../data/Variables/unpruned_tokens.rds")
+
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Creating vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
 print("Pruning vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
+
+# Write the vocabulary to an RDS file
+#saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
@@ -76,7 +87,6 @@ tokens <- lapply(tokens, function(token_vec) {
 end_remove_tokens <- Sys.time()
 total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
 print(paste("Execution time of removing tokens", total_execution_time_tokens))
-
 
 # Put the tokens list in the data.table in a column called Review_Tokens
 print("Putting the tokens in the df")
@@ -93,6 +103,3 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 fwrite(df, "../data/tokenized_reviews.csv")
-
-# Write the vocabulary to a CSV file
-saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")

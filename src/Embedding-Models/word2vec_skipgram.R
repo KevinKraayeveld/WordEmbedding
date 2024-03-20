@@ -1,3 +1,13 @@
+# List of required packages
+packages <- c("word2vec", "data.table", "tokenizers", "parallel")
+
+# Check if each package is installed, if not, install it
+for (package in packages) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
 library(word2vec)
 library(data.table)
 library(tokenizers)

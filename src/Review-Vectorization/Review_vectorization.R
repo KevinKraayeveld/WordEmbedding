@@ -1,3 +1,13 @@
+# List of required packages
+packages <- c("data.table")
+
+# Check if each package is installed, if not, install it
+for (package in packages) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
 library(data.table)
 
 # Function to get word vectors for a review. The review is already in tokens format. 
