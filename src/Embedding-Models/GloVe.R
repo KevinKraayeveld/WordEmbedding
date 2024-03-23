@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("word2vec", "data.table", "rsparse")
+packages <- c("word2vec", "data.table", "rsparse", "parallel")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -12,12 +12,11 @@ for (package in packages) {
 library(data.table)
 library(text2vec)
 library(rsparse)
+library(parallel)
 
 start_time <- Sys.time()
 
-tokens <- strsplit(df$Review, split = " ",
-                   fixed = T)
-iter <- itoken(tokens)
+iter <- itoken(df$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
 tcm <- create_tcm(it = iter, vectorizer = vectorizer)
 
@@ -28,6 +27,10 @@ glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
                          alpha = 0.75, # the alpha in weighting function formula
                          lambda = 0, # regularization parameter
                          shuffle = FALSE)
+
+# Set the number of threads
+num_cores <- detectCores()
+options(mc.cores = num_cores)
                   
 glove_model$fit_transform(x = tcm, # Co-occurence matrix
                           n_iter = 50, # number of SGD iterations

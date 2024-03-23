@@ -35,10 +35,10 @@ test$isPositive <- as.logical(test$isPositive)
 df <- rbind(train, test)
 
 # Randomly select a number of rows
-#set.seed(123)
-#total_rows <- nrow(df)
-#sample_indices <- sample(total_rows, 100000)
-#df <- df[sample_indices]
+set.seed(123)
+total_rows <- nrow(df)
+sample_indices <- sample(total_rows, 100000)
+df <- df[sample_indices]
 
 start_time <- Sys.time()
 
