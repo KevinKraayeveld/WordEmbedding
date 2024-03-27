@@ -37,7 +37,7 @@ df <- rbind(train, test)
 # Randomly select a number of rows
 set.seed(123)
 total_rows <- nrow(df)
-sample_indices <- sample(total_rows, 100000)
+sample_indices <- sample(total_rows, 1000)
 df <- df[sample_indices]
 
 start_time <- Sys.time()
@@ -66,9 +66,6 @@ tokens <- as.list(tokens)
 print("Stemming tokens")
 tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
 
-# Save the tokens variable
-saveRDS(tokens, file = "../data/Variables/unpruned_tokens.rds")
-
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Creating vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
@@ -76,7 +73,7 @@ print("Pruning vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
-saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
+saveRDS(pruned_vocabulary, file = "../data/Variables/smaller_vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
@@ -86,16 +83,25 @@ remove_tokens <- Sys.time()
 tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
 tokens <- as.list(tokens)
 
+word_index_dict <- setNames(seq_along(pruned_vocabulary$term), pruned_vocabulary$term)
+
+sorting_order <- names(sorted_word_index_dict)
+
+saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
+
+# Put the tokens list in the data.table in a column called Review_Tokens
+df$Review_Tokens <- tokens
+
+df[, Token_index := lapply(df$Review_Tokens, function(tokens){
+  unlist(unname(word_index_dict[tokens]))
+})]
+
 end_remove_tokens <- Sys.time()
 total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
 print(paste("Execution time of removing tokens", total_execution_time_tokens))
 
-# Put the tokens list in the data.table in a column called Review_Tokens
-print("Putting the tokens in the df")
-df$Review_Tokens <- tokens
-
 print("Removing unnecessary columns")
-df <- df[, .(isPositive, Review, Review_Tokens)]
+df <- df[, .(isPositive, Review_Tokens, Token_index)]
 
 end_time <- Sys.time()
 # Total execution time
@@ -104,4 +110,4 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 # Write df to a CSV file
-fwrite(df, "../data/tokenized_reviews.csv")
+fwrite(df, "../data/smaller_tokenized_reviews.csv")

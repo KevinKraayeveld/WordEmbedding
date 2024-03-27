@@ -27,23 +27,29 @@ setDTthreads(threads = num_cores)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data = FALSE
+get_new_data <- TRUE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
 # - "word2vec_skipgram"
 # - "GloVe"
-embedding_model = "GloVe"
+embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings = TRUE
+get_new_embeddings <- FALSE
+
+create_new_vectors <- TRUE
+# Choose vectorization method
+# - average
+# - stacked (not yet)
+vectorization_method <- "average"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
-prediction_model = "logistic_regression"
+prediction_model <- "logistic_regression"
 # If you want to run the prediction file to get new predictions this is TRUE. 
 # If you have the predictions saved in an Rdata file then this is FALSE.
-get_new_predictions = TRUE
+get_new_predictions <- TRUE
 ```
 
 ## Data preprocessing
@@ -51,7 +57,7 @@ get_new_predictions = TRUE
 ```{r read_cleaned_data, echo = FALSE}
 if(get_new_data){
   source("Preprocessing/Cleaning.R")
-} else{
+} else if(!get_new_data & (get_new_predictions | create_new_vectors)){
   df <- fread("../data/tokenized_reviews.csv")
   vocabulary <- readRDS("../data/Variables/vocabulary.rds")
   # Splitting the Tokens column into a list of characters
@@ -67,13 +73,27 @@ if(get_new_embeddings){
   path <- paste0("Embedding-Models/", file_name)
   source(path)
 } else{
+  file_name <- paste0(embedding_model, ".rds")
+  path <- paste0("../data/Models/", file_name)
+  model <- readRDS(path)
+}
+
+```
+
+## Review vectorization
+
+```{r review_vectorization, echo = FALSE}
+if(create_new_vectors){
+  file_name <- paste0(vectorization_method, "_vectorization.R")
+  path <- paste0("Review-Vectorization/", file_name)
+  source(path)
+} else{
   file_name <- paste0("vectorized_", embedding_model, ".csv")
   path <- paste0("../data/Vectorized-Reviews/", file_name)
   df <- fread(path)
   df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
   df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
 }
-
 ```
 
 ## Prediction model

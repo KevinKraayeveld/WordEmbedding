@@ -12,11 +12,21 @@ library(data.table)
 
 start_time <- Sys.time()
 
-vector_averaging <- function(tokens, model){
-  return(colMeans(model[match(tokens, rownames(model)), , drop = FALSE]))
+vector_averaging <- function(token_index, model){
+  print("getting embeddings")
+  start_embeddings <- Sys.time()
+  embeddings <- model[unlist(token_index),]
+  end_embeddings <- Sys.time()
+  print(difftime(end_embeddings, start_embeddings))
+  print("averaging vectors")
+  start_averaging <- Sys.time()
+  vector <- colMeans(embeddings)
+  end_averaging <- Sys.time()
+  print(difftime(end_averaging, start_averaging))
+  return(vector)
 }
 
-df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+df[, Review_Vector := lapply(df$Token_index, function(tokens){
   vector_averaging(tokens, model)
 })]
 
