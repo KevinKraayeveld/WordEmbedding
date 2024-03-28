@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table", "text2vec", "tm", "tokenizers", "SnowballC", "tidytext", "quanteda")
+packages <- c("data.table", "text2vec", "tm", "tokenizers", "SnowballC", "tidytext", "quanteda", "stringi")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -15,6 +15,7 @@ library(tokenizers)
 library(SnowballC)
 library(tidytext)
 library(quanteda)
+library(stringi)
 
 train <- fread("../data/train.csv")
 test <- fread("../data/test.csv")
@@ -35,41 +36,45 @@ test$isPositive <- as.logical(test$isPositive)
 df <- rbind(train, test)
 
 # Randomly select a number of rows
-set.seed(123)
-total_rows <- nrow(df)
-sample_indices <- sample(total_rows, 1000)
-df <- df[sample_indices]
+#set.seed(123)
+#total_rows <- nrow(df)
+#sample_indices <- sample(total_rows, 1000)
+#df <- df[sample_indices]
 
 start_time <- Sys.time()
 
 # Remove stop words, punctuation, whitespace, numbers and make everything lower case
-print("Start removing punctiation")
+print("Remove punctiation")
 df$Review <- removePunctuation(df$Review)
-print("Finished removing punctuation, starting to remove numbers")
+print("Remove numbers")
 df$Review <- removeNumbers(df$Review)
-print("Removed numbers, now turning everything lowercase")
-df$Review <- tolower(df$Review)
-print("Now removing whitespace")
+print("Remove whitespace")
 df$Review <- stripWhitespace(df$Review)
-print("Now removing whitespaces at the first index")
+print("Remove whitespaces at the first index")
 df$Review <- gsub("^\\s+", "", df$Review)
+print("Remove punctiation again")
+df$Review <- removePunctuation(df$Review)
+print("Remove accents and turn to lowercase")
+df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
+print("Remove punctiation again")
+df$Review <- removePunctuation(df$Review)
 
-print("Creating tokens")
+print("Create tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
 
-print("Removing stop words")
+print("Remove stop words")
 data(stop_words)
 tokens <- tokens_select(as.tokens(tokens), stop_words$word, selection = "remove")
 tokens <- as.list(tokens)
 
 # Stem the tokens
-print("Stemming tokens")
+print("Stem tokens")
 tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
 
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
-print("Creating vocabulary")
+print("Create vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
-print("Pruning vocabulary")
+print("Prune vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
@@ -77,7 +82,7 @@ saveRDS(pruned_vocabulary, file = "../data/Variables/smaller_vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
-print("Removing tokens that are not in the pruned vocabulary")
+print("Remove tokens that are not in the pruned vocabulary")
 remove_tokens <- Sys.time()
 
 tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
@@ -89,13 +94,13 @@ print(paste("Execution time of removing tokens", total_execution_time_tokens))
 
 token_index_column <- Sys.time()
 
-print("Gettting word order")
+print("Set word order")
 sorting_order <- unique(unlist(tokens))
 
-print("Saving word order")
+print("Save word order")
 saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
 
-print("Creating Token_index column")
+print("Create Token_index column")
 df$Token_index <- unclass(as.tokens(tokens))
 
 token_index_column_end <- Sys.time()
@@ -104,11 +109,14 @@ total_execution_time_index_column <- as.numeric(difftime(token_index_column_end,
 cat("Total execution time:", total_execution_time_index_column, "seconds \n")
 cat("Estimated execution time of token column for full dataset is", total_execution_time_index_column*(4000000/nrow(df)), "seconds. Which is", total_execution_time_index_column*(4000000/nrow(df))/3600, "hours \n")
 
-print("Creating Review_Tokens column")
+print("Create Review_Tokens column")
 df$Review_Tokens <- tokens
 
-print("Removing unnecessary columns")
+print("Remove unnecessary columns")
 df <- df[, .(isPositive, Review_Tokens, Token_index)]
+
+print("Remove rows with empty reviews after cleaning")
+df <- df[Review_Tokens != list("")]
 
 end_time <- Sys.time()
 # Total execution time

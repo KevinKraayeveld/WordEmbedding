@@ -27,7 +27,7 @@ setDTthreads(threads = num_cores)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data <- TRUE
+get_new_data <- FALSE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
@@ -58,10 +58,11 @@ get_new_predictions <- TRUE
 if(get_new_data){
   source("Preprocessing/Cleaning.R")
 } else if(!get_new_data & (get_new_predictions | create_new_vectors)){
-  df <- fread("../data/tokenized_reviews.csv")
+  df <- fread("../data/tokenized_reviews.csv", sep = ",", sep2 = "|")
   vocabulary <- readRDS("../data/Variables/vocabulary.rds")
   # Splitting the Tokens column into a list of characters
   df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
+  df$Token_index <- lapply(strsplit(df$Token_index, "\\|"), as.numeric)
 }
 ```
 
@@ -87,6 +88,8 @@ if(create_new_vectors){
   file_name <- paste0(vectorization_method, "_vectorization.R")
   path <- paste0("Review-Vectorization/", file_name)
   source(path)
+  path2 <-  paste0("../data/Vectorized-Reviews/vectorized_", embedding_model, ".csv")
+  fwrite(df, path2)
 } else{
   file_name <- paste0("vectorized_", embedding_model, ".csv")
   path <- paste0("../data/Vectorized-Reviews/", file_name)
