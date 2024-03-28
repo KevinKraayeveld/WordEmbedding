@@ -40,4 +40,3 @@ rm(model)
 
 print("remove unnecessary columns")
 df <- df[, .(isPositive, Review_Vector)]
-

@@ -28,12 +28,20 @@ setnames(test, old = c("V1", "V2", "V3"), new = c("isPositive", "Title", "Review
 train$isPositive <- train$isPositive - 1
 test$isPositive <- test$isPositive - 1
 
+train <- train[, .(isPositive, Review)]
+test <- test[, .(isPositive, Review)]
+
 # Transform the isPositive variable to a logical variable
 train$isPositive <- as.logical(train$isPositive)
 test$isPositive <- as.logical(test$isPositive)
 
 # Merge train and test data.
+print("merge train and test")
 df <- rbind(train, test)
+
+print("remove train and test from working memory")
+rm(list = c("train", "test"))
+
 
 # Randomly select a number of rows
 #set.seed(123)
@@ -44,7 +52,7 @@ df <- rbind(train, test)
 start_time <- Sys.time()
 
 # Remove stop words, punctuation, whitespace, numbers and make everything lower case
-print("Remove punctiation")
+print("Remove punctuation")
 df$Review <- removePunctuation(df$Review)
 print("Remove numbers")
 df$Review <- removeNumbers(df$Review)
@@ -52,11 +60,11 @@ print("Remove whitespace")
 df$Review <- stripWhitespace(df$Review)
 print("Remove whitespaces at the first index")
 df$Review <- gsub("^\\s+", "", df$Review)
-print("Remove punctiation again")
+print("Remove punctuation again")
 df$Review <- removePunctuation(df$Review)
 print("Remove accents and turn to lowercase")
 df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
-print("Remove punctiation again")
+print("Remove punctuation again")
 df$Review <- removePunctuation(df$Review)
 
 print("Create tokens")
@@ -78,9 +86,13 @@ print("Prune vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
+print("Save vocabulary in rds file")
 saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
+
+print("Remove vocabulary from working directory")
+rm(list = c("vocabulary", "pruned_vocabulary"))
 
 print("Remove tokens that are not in the pruned vocabulary")
 remove_tokens <- Sys.time()
@@ -100,6 +112,9 @@ sorting_order <- unique(unlist(tokens))
 print("Save word order")
 saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
 
+print("Remove sorting_order from working directory")
+rm(sorting_order)
+
 print("Create Token_index column")
 df$Token_index <- unclass(as.tokens(tokens))
 
@@ -111,6 +126,9 @@ cat("Estimated execution time of token column for full dataset is", total_execut
 
 print("Create Review_Tokens column")
 df$Review_Tokens <- tokens
+
+print("Remove tokens variable from working memory")
+rm(tokens)
 
 print("Remove unnecessary columns")
 df <- df[, .(isPositive, Review_Tokens, Token_index)]

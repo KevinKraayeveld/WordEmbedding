@@ -43,6 +43,9 @@ sorting_order <- readRDS("../data/variables/sorting_order.rds")
 print("sort model")
 model <- model[sorting_order, , drop = FALSE]
 
+print("remove sorting_order from working session")
+rm(sorting_order)
+
 print("save model in rds file")
 saveRDS(model, "../data/models/word2vec_skipgram.rds")
 
