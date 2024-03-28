@@ -83,22 +83,29 @@ remove_tokens <- Sys.time()
 tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
 tokens <- as.list(tokens)
 
-word_index_dict <- setNames(seq_along(pruned_vocabulary$term), pruned_vocabulary$term)
-
-sorting_order <- names(sorted_word_index_dict)
-
-saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
-
-# Put the tokens list in the data.table in a column called Review_Tokens
-df$Review_Tokens <- tokens
-
-df[, Token_index := lapply(df$Review_Tokens, function(tokens){
-  unlist(unname(word_index_dict[tokens]))
-})]
-
 end_remove_tokens <- Sys.time()
 total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
 print(paste("Execution time of removing tokens", total_execution_time_tokens))
+
+token_index_column <- Sys.time()
+
+print("Gettting word order")
+sorting_order <- unique(unlist(tokens))
+
+print("Saving word order")
+saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
+
+print("Creating Token_index column")
+df$Token_index <- unclass(as.tokens(tokens))
+
+token_index_column_end <- Sys.time()
+total_execution_time_index_column <- as.numeric(difftime(token_index_column_end, token_index_column, units = "secs"))
+
+cat("Total execution time:", total_execution_time_index_column, "seconds \n")
+cat("Estimated execution time of token column for full dataset is", total_execution_time_index_column*(4000000/nrow(df)), "seconds. Which is", total_execution_time_index_column*(4000000/nrow(df))/3600, "hours \n")
+
+print("Creating Review_Tokens column")
+df$Review_Tokens <- tokens
 
 print("Removing unnecessary columns")
 df <- df[, .(isPositive, Review_Tokens, Token_index)]
