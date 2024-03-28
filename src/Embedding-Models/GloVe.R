@@ -16,10 +16,15 @@ library(parallel)
 
 start_time <- Sys.time()
 
+print("read vocabulary.rds")
+vocabulary <- readRDS("../data/Variables/vocabulary.rds")
+
+print("Create tcm")
 iter <- itoken(df$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
 tcm <- create_tcm(it = iter, vectorizer = vectorizer)
 
+print("Initiate GloVe model")
 # Train GloVe embeddings
 glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
                          x_max = 100, # maximum number of co-occurrences to use in the weighting function
@@ -32,17 +37,16 @@ glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
 num_cores <- detectCores()
 options(mc.cores = num_cores)
                   
+print("Train GloVe model")
 glove_model$fit_transform(x = tcm, # Co-occurence matrix
                           n_iter = 50, # number of SGD iterations
                           convergence_tol = -1) # defines early stopping strategy
 
 # Extract trained word embeddings
+print("Extract word embeddings")
 word_embeddings <- glove_model$components
+print("Turn model into matrix and transpose")
 model <- t(as.matrix(word_embeddings))
-
-source("Review-Vectorization/Review_vectorization.R")
-
-df <- df[, .(isPositive, Review_Vector)]
 
 end_time <- Sys.time()
 
@@ -52,4 +56,17 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
-fwrite(df, "../data/Vectorized-Reviews/vectorized_GloVe.csv")
+print("read sorting_order.rds")
+sorting_order <- readRDS("../data/variables/sorting_order.rds")
+
+print("sort model")
+model <- model[sorting_order, , drop = FALSE]
+
+print("remove sorting_order from working session")
+rm(sorting_order)
+
+print("save model in rds file")
+saveRDS(model, "../data/models/glove.rds")
+
+print("remove unnecessary columns")
+df <- df[, .(isPositive, Token_index)]

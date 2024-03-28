@@ -78,7 +78,7 @@ print("Prune vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
-saveRDS(pruned_vocabulary, file = "../data/Variables/smaller_vocabulary.rds")
+saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
@@ -125,4 +125,4 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 # Write df to a CSV file
-fwrite(df, "../data/smaller_tokenized_reviews.csv")
+fwrite(df, "../data/tokenized_reviews.csv")

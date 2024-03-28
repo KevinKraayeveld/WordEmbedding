@@ -20,6 +20,7 @@ set.seed(100)
 # Get the amount of CPU cores on this PC.
 num_cores <- detectCores()
 
+print("Create word embeddings")
 model <- word2vec(x = df$Review_Tokens, 
                   type = "cbow", 
                   dim = 50, # Dimension of the word vectors
@@ -29,10 +30,6 @@ model <- word2vec(x = df$Review_Tokens,
                   threads = num_cores) # Number of threads to use
 model <- as.matrix(model)
 
-source("Review-Vectorization/Review_vectorization.R")
-
-df <- df[, .(isPositive, Review_Vector)]
-
 end_time <- Sys.time()
 
 # Total execution time
@@ -41,4 +38,15 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
-fwrite(df, "../data/Vectorized-Reviews/vectorized_word2vec_cbow.csv")
+print("read sorting_order.rds")
+sorting_order <- readRDS("../data/variables/sorting_order.rds")
+
+print("sort model")
+model <- model[sorting_order, , drop = FALSE]
+
+print("save model in rds file")
+saveRDS(model, "../data/models/word2vec_cbow.rds")
+
+print("remove unnecessary columns")
+df <- df[, .(isPositive, Token_index)]
+

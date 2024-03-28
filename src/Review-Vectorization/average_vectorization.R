@@ -14,7 +14,7 @@ start_time <- Sys.time()
 
 vector_averaging <- function(token_index, model){
   embeddings <- model[unlist(token_index),]
-  if(length(embeddings) < 2){
+  if(length(embeddings) > 1){
     vector <- colMeans(embeddings)
   } else{
     vector <- embeddings
@@ -22,6 +22,7 @@ vector_averaging <- function(token_index, model){
   return(vector)
 }
 
+print("get word embeddings and average them")
 df[, Review_Vector := lapply(df$Token_index, function(tokens){
   vector_averaging(tokens, model)
 })]
@@ -34,5 +35,9 @@ cat("Total execution time of review vectorization:", total_execution_time, "seco
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
+print("remove model from working session")
+rm(model)
+
+print("remove unnecessary columns")
 df <- df[, .(isPositive, Review_Vector)]
 
