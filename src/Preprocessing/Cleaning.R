@@ -28,8 +28,8 @@ setnames(test, old = c("V1", "V2", "V3"), new = c("isPositive", "Title", "Review
 train$isPositive <- train$isPositive - 1
 test$isPositive <- test$isPositive - 1
 
-train <- train[, .(isPositive, Review)]
-test <- test[, .(isPositive, Review)]
+train[, Title := NULL]
+test[, Title := NULL]
 
 # Transform the isPositive variable to a logical variable
 train$isPositive <- as.logical(train$isPositive)
@@ -41,7 +41,6 @@ df <- rbind(train, test)
 
 print("remove train and test from working memory")
 rm(list = c("train", "test"))
-
 
 # Randomly select a number of rows
 #set.seed(123)
@@ -130,11 +129,12 @@ df$Review_Tokens <- tokens
 print("Remove tokens variable from working memory")
 rm(tokens)
 
-print("Remove unnecessary columns")
-df <- df[, .(isPositive, Review_Tokens, Token_index)]
+print("Remove unnecessary column")
+df[, Review := NULL]
 
 print("Remove rows with empty reviews after cleaning")
-df <- df[Review_Tokens != list("")]
+# @TODO Fix this to use less memory
+df <- df[Review_Tokens != ""]
 
 end_time <- Sys.time()
 # Total execution time

@@ -28,6 +28,7 @@ model <- word2vec(x = df$Review_Tokens,
                   iter = 50, # Number of training iterations
                   lr = 0.05, # Learning rate
                   threads = num_cores) # Number of threads to use
+# @TODO Fix this to use less memory
 model <- as.matrix(model)
 
 end_time <- Sys.time()
@@ -42,6 +43,7 @@ print("read sorting_order.rds")
 sorting_order <- readRDS("../data/variables/sorting_order.rds")
 
 print("sort model")
+# @TODO Fix this to use less memory
 model <- model[sorting_order, , drop = FALSE]
 
 print("remove sorting_order from working session")
@@ -51,4 +53,4 @@ print("save model in rds file")
 saveRDS(model, "../data/models/word2vec_cbow.rds")
 
 print("remove unnecessary columns")
-df <- df[, .(isPositive, Token_index)]
+df[, Review_Tokens := NULL]

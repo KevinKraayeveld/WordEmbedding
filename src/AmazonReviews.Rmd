@@ -27,7 +27,7 @@ setDTthreads(threads = num_cores)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data <- TRUE
+get_new_data <- FALSE
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
@@ -36,7 +36,7 @@ get_new_data <- TRUE
 embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings <- TRUE
+get_new_embeddings <- FALSE
 
 create_new_vectors <- TRUE
 # Choose vectorization method

@@ -24,6 +24,11 @@ iter <- itoken(df$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
 tcm <- create_tcm(it = iter, vectorizer = vectorizer)
 
+rm(vocabulary)
+
+print("remove unnecessary columns")
+df[, Review_Tokens := NULL]
+
 print("Initiate GloVe model")
 # Train GloVe embeddings
 glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
@@ -42,10 +47,13 @@ glove_model$fit_transform(x = tcm, # Co-occurence matrix
                           n_iter = 50, # number of SGD iterations
                           convergence_tol = -1) # defines early stopping strategy
 
+rm(tcm)
+
 # Extract trained word embeddings
 print("Extract word embeddings")
 word_embeddings <- glove_model$components
 print("Turn model into matrix and transpose")
+# @TODO Fix this to use less memory
 model <- t(as.matrix(word_embeddings))
 
 end_time <- Sys.time()
@@ -60,6 +68,7 @@ print("read sorting_order.rds")
 sorting_order <- readRDS("../data/variables/sorting_order.rds")
 
 print("sort model")
+# @TODO Fix this to use less memory
 model <- model[sorting_order, , drop = FALSE]
 
 print("remove sorting_order from working session")
@@ -68,5 +77,4 @@ rm(sorting_order)
 print("save model in rds file")
 saveRDS(model, "../data/models/glove.rds")
 
-print("remove unnecessary columns")
-df <- df[, .(isPositive, Token_index)]
+

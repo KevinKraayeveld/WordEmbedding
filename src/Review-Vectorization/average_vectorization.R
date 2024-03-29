@@ -39,4 +39,4 @@ print("remove model from working session")
 rm(model)
 
 print("remove unnecessary columns")
-df <- df[, .(isPositive, Review_Vector)]
+df[, Token_index := NULL]
