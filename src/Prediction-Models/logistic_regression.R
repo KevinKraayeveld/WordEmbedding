@@ -20,12 +20,16 @@ train_index <- createDataPartition(df$isPositive, p = 0.8, list = FALSE)
 train_data <- df[train_index]
 test_data <- df[-train_index]
 
+rm(list = c("train_index", "df"))
+
 # Convert Review_Vector column from list to matrix
 x_train <- t(sapply(train_data$Review_Vector, unlist))
 x_test <- t(sapply(test_data$Review_Vector, unlist))
 
 y_train <- train_data$isPositive
 y_test <- test_data$isPositive
+
+rm(list = c("train_data", "test_data"))
 
 # Define the logistic regression model
 logit_model <- glm(y_train ~ ., data = as.data.frame(x_train), family = binomial)

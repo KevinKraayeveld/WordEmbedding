@@ -43,10 +43,10 @@ print("remove train and test from working memory")
 rm(list = c("train", "test"))
 
 # Randomly select a number of rows
-#set.seed(123)
-#total_rows <- nrow(df)
-#sample_indices <- sample(total_rows, 1000)
-#df <- df[sample_indices]
+set.seed(123)
+total_rows <- nrow(df)
+sample_indices <- sample(total_rows, 1000)
+df <- df[sample_indices]
 
 start_time <- Sys.time()
 
@@ -134,7 +134,7 @@ df[, Review := NULL]
 
 print("Remove rows with empty reviews after cleaning")
 # @TODO Fix this to use less memory
-df <- df[Review_Tokens != ""]
+df <- df[lengths(df$Review_Tokens) > 0, ]
 
 end_time <- Sys.time()
 # Total execution time

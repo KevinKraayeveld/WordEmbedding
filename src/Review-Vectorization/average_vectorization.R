@@ -14,10 +14,10 @@ start_time <- Sys.time()
 
 vector_averaging <- function(token_index, model){
   embeddings <- model[unlist(token_index),]
-  if(length(embeddings) > 1){
-    vector <- colMeans(embeddings)
-  } else{
+  if(is.null(dim(embeddings)[1])){
     vector <- embeddings
+  } else{
+    vector <- colMeans(embeddings)
   }
   return(vector)
 }
