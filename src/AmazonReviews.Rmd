@@ -27,13 +27,13 @@ setDTthreads(threads = num_cores)
 ```
 
 ```{r config, echo = FALSE}
-get_new_data <- T
+get_new_data <- F
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
 # - "word2vec_skipgram"
 # - "GloVe"
-embedding_model <- "word2vec_cbow"
+embedding_model <- "glove"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
 get_new_embeddings <- T
