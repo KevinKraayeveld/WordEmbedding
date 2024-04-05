@@ -42,11 +42,13 @@ df <- rbind(train, test)
 print("remove train and test from working memory")
 rm(list = c("train", "test"))
 
-# Randomly select a number of rows
-#set.seed(123)
-#total_rows <- nrow(df)
-#sample_indices <- sample(total_rows, 1000)
-#df <- df[sample_indices]
+if(small_data){
+  # Randomly select a number of rows
+  set.seed(123)
+  total_rows <- nrow(df)
+  sample_indices <- sample(total_rows, 1000)
+  df <- df[sample_indices]
+}
 
 start_time <- Sys.time()
 
@@ -86,7 +88,11 @@ pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
 print("Save vocabulary in rds file")
-saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
+if(small_data){
+  saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary_small.rds")
+} else{
+  saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
+}
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
 
@@ -109,7 +115,12 @@ print("Set word order")
 sorting_order <- unique(unlist(tokens))
 
 print("Save word order")
-saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
+if(small_data){
+  saveRDS(sorting_order, "../data/Variables/sorting_order_small.rds")
+} else{
+  saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
+}
+
 
 print("Remove sorting_order from working directory")
 rm(sorting_order)
@@ -143,4 +154,8 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 # Write df to a CSV file
-fwrite(df, "../data/tokenized_reviews.csv")
+if(small_data){
+  fwrite(df, "../data/tokenized_reviews_small.csv")
+} else{
+  fwrite(df, "../data/tokenized_reviews.csv")
+}
