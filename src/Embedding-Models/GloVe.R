@@ -22,7 +22,9 @@ vocabulary <- readRDS("../data/Variables/vocabulary.rds")
 print("Create tcm")
 iter <- itoken(df$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
-tcm <- create_tcm(it = iter, vectorizer = vectorizer)
+tcm <- create_tcm(it = iter, 
+                  vectorizer = vectorizer,
+                  skip_grams_window = 5L)
 
 rm(vocabulary)
 
@@ -68,7 +70,6 @@ print("read sorting_order.rds")
 sorting_order <- readRDS("../data/variables/sorting_order.rds")
 
 print("sort model")
-# @TODO Fix this to use less memory
 model <- model[sorting_order, , drop = FALSE]
 
 print("remove sorting_order from working session")
@@ -77,4 +78,5 @@ rm(sorting_order)
 print("save model in rds file")
 saveRDS(model, "../data/models/glove.rds")
 
-
+print("remove unnecessary columns")
+df[, Review_Tokens := NULL]
