@@ -36,22 +36,23 @@ small_data <- T
 # - "word2vec_skipgram"
 # - "GloVe"
 # - "fastText"
-embedding_model <- "fastText"
+# - "BERT"
+embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings <- T
+get_new_embeddings <- F
 
-create_new_vectors <- TRUE
+create_new_vectors <- T
 # Choose vectorization method
 # - average
-# - stacked (not yet)
+# - stacked
 vectorization_method <- "average"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
 prediction_model <- "logistic_regression"
 # If you want to run the prediction file to get new predictions this is TRUE. 
-# If you have the predictions saved in an Rdata file then this is FALSE.
+# If you have the predictions saved in an Rds file then this is FALSE.
 get_new_predictions <- TRUE
 ```
 
@@ -93,15 +94,23 @@ if(create_new_vectors){
   file_name <- paste0(vectorization_method, "_vectorization.R")
   path <- paste0("Review-Vectorization/", file_name)
   source(path)
-  path2 <-  paste0("../data/Vectorized-Reviews/vectorized_", embedding_model, ".csv")
+  if(small_data){
+    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_small.csv")
+  }else{
+    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, ".csv")
+  }
   fwrite(df, path2)
-} else{
-  file_name <- paste0("vectorized_", embedding_model, ".csv")
+  } else{
+    if(small_data){
+      file_name <- paste0(vectorization_method, "_", embedding_model, "_small.csv")
+    }else{
+      file_name <- paste0(vectorization_method, "_", embedding_model, ".csv")
+    }
   path <- paste0("../data/Vectorized-Reviews/", file_name)
   df <- fread(path)
   df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
   df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
-}
+  }
 ```
 
 ## Prediction model
