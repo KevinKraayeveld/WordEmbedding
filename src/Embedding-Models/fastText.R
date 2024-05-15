@@ -56,10 +56,12 @@ print(difftime(e, s))
 
 unlink("../data/fastText/logs_supervise.txt")
 
-
-
 print("Get words and write it to a txt file")
-sorting_order <- readRDS("../data/variables/sorting_order_small.rds")
+if(small_data){
+  sorting_order <- readRDS("../data/variables/sorting_order_small.rds")
+}else{
+  sorting_order <- readRDS("../data/variables/sorting_order.rds")
+}
 
 sorting_order_file <- tempfile(fileext = ".txt")
 

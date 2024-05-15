@@ -39,7 +39,11 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 print("read sorting_order.rds")
-sorting_order <- readRDS("../data/variables/sorting_order.rds")
+if(small_data){
+  sorting_order <- readRDS("../data/variables/sorting_order_small.rds")
+}else{
+  sorting_order <- readRDS("../data/variables/sorting_order.rds")
+}
 
 print("sort model")
 # @TODO Fix this to use less memory
