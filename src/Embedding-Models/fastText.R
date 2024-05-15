@@ -20,9 +20,6 @@ df$Review <- lapply(df$Review_Tokens, function(token) {
   paste(token, collapse = " ")
 })
 
-print("Remove Review_Tokens")
-df[, Review_Tokens := NULL]
-
 df$Review <- as.character(df$Review)
 
 input_file <- tempfile(fileext = ".txt")
@@ -58,16 +55,16 @@ unlink("../data/fastText/logs_supervise.txt")
 
 print("Get words and write it to a txt file")
 if(small_data){
-  sorting_order <- readRDS("../data/variables/sorting_order_small.rds")
+  words <- readRDS("../data/variables/words_small.rds")
 }else{
-  sorting_order <- readRDS("../data/variables/sorting_order.rds")
+  sorting_order <- readRDS("../data/variables/words.rds")
 }
 
-sorting_order_file <- tempfile(fileext = ".txt")
+words_file <- tempfile(fileext = ".txt")
 
-writeLines(sorting_order, sorting_order_file)
+writeLines(words, words_file)
 
-rm(sorting_order)
+rm(words)
 
 vectors_file <- tempfile(fileext = ".txt")
 
@@ -76,7 +73,7 @@ list_params <- list(command = "print-word-vectors",
 
 print("Get word embeddings and write to txt file")
 res <- fasttext_interface(list_params,
-                          path_input = sorting_order_file,
+                          path_input = words_file,
                           path_output = vectors_file)
 
 unlink("../data/fastText/model.bin")

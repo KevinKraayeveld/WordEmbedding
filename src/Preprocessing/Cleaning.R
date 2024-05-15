@@ -105,34 +105,17 @@ remove_tokens <- Sys.time()
 tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
 tokens <- as.list(tokens)
 
-end_remove_tokens <- Sys.time()
-total_execution_time_tokens <- as.numeric(difftime(end_remove_tokens, remove_tokens, units = "secs"))
-print(paste("Execution time of removing tokens", total_execution_time_tokens))
+print("Save words")
+words <- unique(unlist(tokens))
 
-token_index_column <- Sys.time()
-
-print("Set word order")
-sorting_order <- unique(unlist(tokens))
-
-print("Save word order")
+print("Save words")
 if(small_data){
-  saveRDS(sorting_order, "../data/Variables/sorting_order_small.rds")
+  saveRDS(words, "../data/Variables/words_small.rds")
 } else{
-  saveRDS(sorting_order, "../data/Variables/sorting_order.rds")
+  saveRDS(words, "../data/Variables/words.rds")
 }
 
-
-print("Remove sorting_order from working directory")
-rm(sorting_order)
-
-print("Create Token_index column")
-df$Token_index <- unclass(as.tokens(tokens))
-
-token_index_column_end <- Sys.time()
-total_execution_time_index_column <- as.numeric(difftime(token_index_column_end, token_index_column, units = "secs"))
-
-cat("Total execution time:", total_execution_time_index_column, "seconds \n")
-cat("Estimated execution time of token column for full dataset is", total_execution_time_index_column*(4000000/nrow(df)), "seconds. Which is", total_execution_time_index_column*(4000000/nrow(df))/3600, "hours \n")
+rm(words)
 
 print("Create Review_Tokens column")
 df$Review_Tokens <- tokens
@@ -144,7 +127,6 @@ print("Remove unnecessary column")
 df[, Review := NULL]
 
 print("Remove rows with empty reviews after cleaning")
-# @TODO Fix this to use less memory
 df <- df[lengths(df$Review_Tokens) > 0, ]
 
 end_time <- Sys.time()

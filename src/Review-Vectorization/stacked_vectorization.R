@@ -12,12 +12,12 @@ library(data.table)
 
 start_time <- Sys.time()
 
-vector_stacking <- function(token_index){
-  return(model[unlist(token_index),])
+vector_stacking <- function(tokens){
+  return(model[unlist(tokens),])
 }
 
 print("Stack embeddings")
-df[, Review_Vector := lapply(df$Token_index, function(tokens){
+df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   vector_stacking(tokens)
 })]
 

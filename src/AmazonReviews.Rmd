@@ -37,19 +37,21 @@ small_data <- T
 # - "GloVe"
 # - "fastText"
 # - "BERT"
-embedding_model <- "word2vec_cbow"
+embedding_model <- "word2vec_skipgram"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # If you have the model saved in a Rdata file then this is FALSE.
-get_new_embeddings <- F
+get_new_embeddings <- T
 
 create_new_vectors <- T
 # Choose vectorization method
 # - average
 # - stacked
-vectorization_method <- "average"
+# - add
+vectorization_method <- "add"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
+# - "ridge_regression"
 prediction_model <- "logistic_regression"
 # If you want to run the prediction file to get new predictions this is TRUE. 
 # If you have the predictions saved in an Rds file then this is FALSE.
@@ -69,7 +71,6 @@ if(get_new_data){
   }
   # Splitting the Tokens column into a list of characters
   df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
-  df$Token_index <- lapply(strsplit(df$Token_index, "\\|"), as.numeric)
 }
 ```
 

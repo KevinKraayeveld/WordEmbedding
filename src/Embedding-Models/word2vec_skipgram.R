@@ -38,23 +38,6 @@ cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
-print("read sorting_order.rds")
-if(small_data){
-  sorting_order <- readRDS("../data/variables/sorting_order_small.rds")
-}else{
-  sorting_order <- readRDS("../data/variables/sorting_order.rds")
-}
-
-print("sort model")
-# @TODO Fix this to use less memory
-model <- model[sorting_order, , drop = FALSE]
-
-print("remove sorting_order from working session")
-rm(sorting_order)
-
 print("save model in rds file")
 saveRDS(model, "../data/models/word2vec_skipgram.rds")
-
-print("remove unnecessary columns")
-df[, Review_Tokens := NULL]
 

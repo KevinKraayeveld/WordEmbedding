@@ -12,8 +12,8 @@ library(data.table)
 
 start_time <- Sys.time()
 
-vector_averaging <- function(token_index, model){
-  embeddings <- model[unlist(token_index),]
+vector_averaging <- function(tokens){
+  embeddings <- model[unlist(tokens),]
   if(is.null(dim(embeddings)[1])){
     vector <- embeddings
   } else{
@@ -23,8 +23,8 @@ vector_averaging <- function(token_index, model){
 }
 
 print("get word embeddings and average them")
-df[, Review_Vector := lapply(df$Token_index, function(tokens){
-  vector_averaging(tokens, model)
+df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+  vector_averaging(tokens)
 })]
 
 end_time <- Sys.time()
@@ -36,7 +36,4 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 print("remove model from working session")
-rm(model)
-
-print("remove unnecessary columns")
-df[, Token_index := NULL]
+#rm(model)

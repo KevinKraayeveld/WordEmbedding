@@ -12,8 +12,8 @@ library(data.table)
 
 start_time <- Sys.time()
 
-add_vectors <- function(token_index){
-  embeddings <- model[unlist(token_index),]
+add_vectors <- function(tokens){
+  embeddings <- model[unlist(tokens),]
   if(is.null(dim(embeddings)[1])){
     vector <- embeddings
   } else{
@@ -22,7 +22,7 @@ add_vectors <- function(token_index){
   return(vector)
 }
 
-df[, Review_Vector := lapply(df$Token_index, function(tokens){
+df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]
 
