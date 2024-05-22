@@ -12,7 +12,7 @@ library(data.table)
 
 start_time <- Sys.time()
 
-get_embeddings <- function(tokens) {
+get_embeddings_gensim_model <- function(tokens) {
   # Initialize an empty matrix to store embeddings
   embedding_size <- model$vector_size
   embeddings_matrix <- matrix(NA, nrow = length(tokens), ncol = embedding_size)
@@ -34,22 +34,39 @@ get_embeddings <- function(tokens) {
   return(embeddings_matrix)
 }
 
+get_embeddings_matrix_model <- function(tokens){
+  embeddings_list <- lapply(tokens, function(token){
+    tryCatch({
+      embedding <- model[token, ]
+      return(embedding)
+    }, error = function(e) {
+      return(rep(NA, ncol(model)))
+    })
+  })
+  embeddings <- do.call(rbind, embeddings_list)
+  return(embeddings)
+}
+
 vector_averaging <- function(tokens){
   if (inherits(model, "gensim.models.keyedvectors.KeyedVectors")) {
-    embeddings <- get_embeddings(tokens)
+    embeddings <- get_embeddings_gensim_model(tokens)
   } else{
-    embeddings <- model[unlist(tokens),]
+    embeddings <- get_embeddings_matrix_model(tokens)
   }
   if(is.null(dim(embeddings)[1])){
     vector <- embeddings
   } else{
-    vector <- colMeans(embeddings)
+    vector <- colMeans(embeddings, na.rm = TRUE)
   }
   return(vector)
 }
 
 print("get word embeddings and average them")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+  vector_averaging(tokens)
+})]
+
+test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]
 
