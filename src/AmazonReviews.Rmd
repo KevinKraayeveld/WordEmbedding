@@ -37,9 +37,11 @@ small_data <- T
 # - "GloVe"
 # - "fastText"
 # - "BERT"
-embedding_model <- "word2vec_skipgram"
+# - "pretrained_word2vec"
+# - "pretrained_glove"
+embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
-# If you have the model saved in a Rdata file then this is FALSE.
+# This has to be True for pretrained models
 get_new_embeddings <- T
 
 create_new_vectors <- T
@@ -47,7 +49,7 @@ create_new_vectors <- T
 # - average
 # - stacked
 # - add
-vectorization_method <- "add"
+vectorization_method <- "average"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
@@ -62,15 +64,18 @@ get_new_predictions <- TRUE
 
 ```{r read_cleaned_data, echo = FALSE}
 if(get_new_data){
-  source("Preprocessing/Cleaning.R")
+  source("Preprocessing/training_test_split.R")
 } else if(!get_new_data & (get_new_predictions | create_new_vectors)){
   if(small_data){
-    df <- fread("../data/tokenized_reviews_small.csv")
+    df <- fread("../data/tokenized_train_small.csv")
+    test <- fread("../data/tokenized_test_small.csv")
   } else{
-    df <- fread("../data/tokenized_reviews.csv")
+    df <- fread("../data/tokenized_train.csv")
+    test <- fread("../data/tokenized_test.csv")
   }
   # Splitting the Tokens column into a list of characters
   df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
+  test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
 }
 ```
 
@@ -96,21 +101,30 @@ if(create_new_vectors){
   path <- paste0("Review-Vectorization/", file_name)
   source(path)
   if(small_data){
-    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_small.csv")
+    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train_small.csv")
+    path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test_small.csv")
   }else{
-    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, ".csv")
+    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train.csv")
+    path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test.csv")
   }
   fwrite(df, path2)
+  fwrite(test, path3)
   } else{
     if(small_data){
-      file_name <- paste0(vectorization_method, "_", embedding_model, "_small.csv")
+      file_name <- paste0(vectorization_method, "_", embedding_model, "train_small.csv")
+      file_name2 <- paste0(vectorization_method, "_", embedding_model, "test_small.csv")
     }else{
-      file_name <- paste0(vectorization_method, "_", embedding_model, ".csv")
+      file_name <- paste0(vectorization_method, "_", embedding_model, "train.csv")
+      file_name2 <- paste0(vectorization_method, "_", embedding_model, "test.csv")
     }
   path <- paste0("../data/Vectorized-Reviews/", file_name)
   df <- fread(path)
   df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
   df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
+  path2 <- paste0("../data/Vectorized-Reviews/", file_name2)
+  test <- fread(path2)
+  test$Review_Vector <- strsplit(test$Review_Vector, "\\|")
+  test$Review_Vector <- lapply(test$Review_Vector, function(x) as.numeric(x))
   }
 ```
 
