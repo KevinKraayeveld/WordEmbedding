@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table")
+packages <- c("data.table", "fastTextR")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -9,6 +9,7 @@ for (package in packages) {
 }
 
 library(data.table)
+library(fastTextR)
 
 start_time <- Sys.time()
 
@@ -47,9 +48,15 @@ get_embeddings_matrix_model <- function(tokens){
   return(embeddings)
 }
 
+get_embeddings_fasttext_model <- function(tokens){
+  ft_word_vectors(model, tokens)
+}
+
 vector_averaging <- function(tokens){
   if (inherits(model, "gensim.models.keyedvectors.KeyedVectors")) {
     embeddings <- get_embeddings_gensim_model(tokens)
+  } else if(inherits(model, "fasttext")){
+    embeddings <- get_embeddings_fasttext_model(tokens)
   } else{
     embeddings <- get_embeddings_matrix_model(tokens)
   }
