@@ -86,11 +86,6 @@ test_tokens <- tokens_select(as.tokens(test_tokens), stop_words$word, selection 
 tokens <- as.list(tokens)
 test_tokens <- as.list(test_tokens)
 
-# Stem the tokens
-print("Stem tokens")
-tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
-test_tokens <- lapply(test_tokens, function(token_list) wordStem(token_list, language = "en"))
-
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Create vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
@@ -101,11 +96,11 @@ pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 # Write the vocabulary to an RDS file
 print("Save vocabulary in rds file")
 if(small_data){
-  saveRDS(pruned_vocabulary, file = "../data/Variables/complete_cleaning_vocabulary_small.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/complete_cleaning_test_vocabulary_small.rds")
+  saveRDS(pruned_vocabulary, file = "../data/Variables/no_stemming_vocabulary_small.rds")
+  saveRDS(test_vocabulary, file = "../data/variables/no_stemming_test_vocabulary_small.rds")
 } else{
-  saveRDS(pruned_vocabulary, file = "../data/Variables/complete_cleaning_vocabulary.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/complete_cleaning_test_vocabulary.rds")
+  saveRDS(pruned_vocabulary, file = "../data/Variables/no_stemming_vocabulary.rds")
+  saveRDS(test_vocabulary, file = "../data/variables/no_stemming_test_vocabulary.rds")
 }
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
@@ -127,9 +122,9 @@ words <- unique(unlist(tokens))
 
 print("Save words")
 if(small_data){
-  saveRDS(words, "../data/Variables/complete_cleaning_words_small.rds")
+  saveRDS(words, "../data/Variables/no_stemming_words_small.rds")
 } else{
-  saveRDS(words, "../data/Variables/complete_cleaning_words.rds")
+  saveRDS(words, "../data/Variables/no_stemming_words.rds")
 }
 
 rm(words)
@@ -156,9 +151,9 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 if(small_data){
-  fwrite(df, "../data/complete_cleaning_train_small.csv")
-  fwrite(test, "../data/complete_cleaning_test_small.csv")
+  fwrite(df, "../data/no_stemming_train_small.csv")
+  fwrite(test, "../data/no_stemming_test_small.csv")
 } else{
-  fwrite(df, "../data/complete_cleaning_train.csv")
-  fwrite(test, "../data/complete_cleaning_test.csv")
+  fwrite(df, "../data/no_stemming_train.csv")
+  fwrite(test, "../data/no_stemming_test.csv")
 }

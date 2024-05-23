@@ -35,19 +35,19 @@ test[, Title := NULL]
 train$isPositive <- as.logical(train$isPositive)
 test$isPositive <- as.logical(test$isPositive)
 
-df <- train
+# Merge train and test data.
+print("merge train and test")
+df <- rbind(train, test)
 
-rm(list = c("train"))
+print("remove train and test from working memory")
+rm(list = c("train", "test"))
 
 if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 10000)
+  sample_indices <- sample(total_rows, 1000)
   df <- df[sample_indices]
-  total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 200)
-  test <- test[sample_indices]
 }
 
 start_time <- Sys.time()
@@ -55,46 +55,34 @@ start_time <- Sys.time()
 # Remove stop words, punctuation, whitespace, numbers and make everything lower case
 print("Remove punctuation")
 df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
 print("Remove numbers")
 df$Review <- removeNumbers(df$Review)
-test$Review <- removeNumbers(test$Review)
 print("Remove whitespace")
 df$Review <- stripWhitespace(df$Review)
-test$Review <- stripWhitespace(test$Review)
 print("Remove whitespaces at the first index")
 df$Review <- gsub("^\\s+", "", df$Review)
-test$Review <- gsub("^\\s+", "", test$Review)
 print("Remove punctuation again")
 df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
 print("Remove accents and turn to lowercase")
 df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
-test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
 print("Remove punctuation again")
 df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
 
 print("Create tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
-test_tokens <- strsplit(test$Review, split = " ", fixed = T)
 
 print("Remove stop words")
 data(stop_words)
 tokens <- tokens_select(as.tokens(tokens), stop_words$word, selection = "remove")
-test_tokens <- tokens_select(as.tokens(test_tokens), stop_words$word, selection = "remove")
 tokens <- as.list(tokens)
-test_tokens <- as.list(test_tokens)
 
 # Stem the tokens
 print("Stem tokens")
 tokens <- lapply(tokens, function(token_list) wordStem(token_list, language = "en"))
-test_tokens <- lapply(test_tokens, function(token_list) wordStem(token_list, language = "en"))
 
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Create vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
-test_vocabulary <- create_vocabulary(itoken(test_tokens), ngram= c(1,1))
 print("Prune vocabulary")
 pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
@@ -102,10 +90,8 @@ pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 print("Save vocabulary in rds file")
 if(small_data){
   saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary_small.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/test_vocabulary_small.rds")
 } else{
   saveRDS(pruned_vocabulary, file = "../data/Variables/vocabulary.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/test_vocabulary.rds")
 }
 
 words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
@@ -118,9 +104,6 @@ remove_tokens <- Sys.time()
 
 tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
 tokens <- as.list(tokens)
-test_tokens <- as.list(test_tokens)
-
-rm(words_to_delete)
 
 print("Save words")
 words <- unique(unlist(tokens))
@@ -136,14 +119,12 @@ rm(words)
 
 print("Create Review_Tokens column")
 df$Review_Tokens <- tokens
-test$Review_Tokens <- test_tokens
 
 print("Remove tokens variable from working memory")
-rm(list = c("tokens", "test_tokens"))
+rm(tokens)
 
 print("Remove unnecessary column")
 df[, Review := NULL]
-test[, Review := NULL]
 
 print("Remove rows with empty reviews after cleaning")
 df <- df[lengths(df$Review_Tokens) > 0, ]
@@ -156,9 +137,7 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 if(small_data){
-  fwrite(df, "../data/tokenized_train_small.csv")
-  fwrite(test, "../data/tokenized_test_small.csv")
+  fwrite(df, "../data/tokenized_reviews_small.csv")
 } else{
-  fwrite(df, "../data/tokenized_train.csv")
-  fwrite(test, "../data/tokenized_test.csv")
+  fwrite(df, "../data/tokenized_reviews.csv")
 }

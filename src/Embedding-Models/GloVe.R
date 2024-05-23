@@ -18,9 +18,11 @@ start_time <- Sys.time()
 
 print("read vocabulary.rds")
 if(small_data){
-  vocabulary <- readRDS("../data/Variables/vocabulary_small.rds")
+  path_train_vocabulary <- paste0("../data/variables/", preprocessing_method, "_vocabulary_small.rds")
+  vocabulary <- readRDS(path_train_vocabulary)
 }else{
-  vocabulary <- readRDS("../data/Variables/vocabulary.rds")
+  path_train_vocabulary <- paste0("../data/variables/", preprocessing_method, "_vocabulary.rds")
+  vocabulary <- readRDS(path_train_vocabulary)
 }
 
 print("Create tcm")
@@ -68,4 +70,8 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
 
 print("save model in rds file")
-saveRDS(model, "../data/models/glove.rds")
+if(small_data){
+  saveRDS(model, "../data/models/glove_small.rds")
+} else{
+  saveRDS(model, "../data/models/glove.rds")
+}

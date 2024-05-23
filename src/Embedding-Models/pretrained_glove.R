@@ -1,3 +1,12 @@
+packages <- c("data.table")
+
+# Check if each package is installed, if not, install it
+for (package in packages) {
+  if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
 library(data.table)
 
 if (file.exists("../pretrained_models/glove.840B.300d.txt")) {
@@ -15,14 +24,21 @@ if (file.exists("../pretrained_models/glove.840B.300d.txt")) {
 }
 
 if(small_data){
-  vocabulary <- readRDS("../data/variables/vocabulary_small.rds")
-  test_vocabulary <- readRDS("../data/variables/test_vocabulary_small.rds")
+  train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary_small.rds")
+  vocabulary <- readRDS(train_vocabulary_path)
+  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary_small.rds")
+  vocabulary <- readRDS(test_vocabulary_path)
 } else{
-  vocabulary <- readRDS("../data/variables/vocabulary.rds")
-  test_vocabulary <- readRDS("../data/variables/test_vocabulary.rds")
+  train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary.rds")
+  vocabulary <- readRDS(train_vocabulary_path)
+  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary.rds")
+  vocabulary <- readRDS(test_vocabulary_path)
 }
 
 full_vocabulary <- union(vocabulary$term, test_vocabulary$term)
 
 rows_to_keep <- rownames(model) %in% full_vocabulary
 model <- model[rows_to_keep, , drop = FALSE]
+
+rm(list = c("train_vocabulary_path", "test_vocabulary_path", "vocabulary", 
+            "test_vocabulary", "vocabulary", "rows_to_keep", "full_vocabulary"))

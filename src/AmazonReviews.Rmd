@@ -29,6 +29,12 @@ setDTthreads(threads = num_cores)
 ```{r config, echo = FALSE}
 get_new_data <- F
 
+# Choose preprocessing method
+# - complete_cleaning
+# - no_stemming
+
+preprocessing_method <- "no_stemming"
+
 small_data <- T
 
 # Choose embedding model. The choices are:
@@ -39,7 +45,8 @@ small_data <- T
 # - "BERT"
 # - "pretrained_word2vec"
 # - "pretrained_glove"
-embedding_model <- "word2vec_cbow"
+# - "pretrained_fasttext"
+embedding_model <- "pretrained_fasttext"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T
@@ -64,14 +71,19 @@ get_new_predictions <- TRUE
 
 ```{r read_cleaned_data, echo = FALSE}
 if(get_new_data){
-  source("Preprocessing/training_test_split.R")
+  path <- paste0("Preprocessing/", preprocessing_method, ".R")
+  source(path)
 } else if(!get_new_data & (get_new_predictions | create_new_vectors)){
   if(small_data){
-    df <- fread("../data/tokenized_train_small.csv")
-    test <- fread("../data/tokenized_test_small.csv")
+    file_path_train <- paste0("../data/", preprocessing_method, "_train_small.csv")
+    df <- fread(file_path_train)
+    file_path_test <- paste0("../data/", preprocessing_method, "_test_small.csv")
+    test <- fread(file_path_test)
   } else{
-    df <- fread("../data/tokenized_train.csv")
-    test <- fread("../data/tokenized_test.csv")
+    file_path_train <- paste0("../data/", preprocessing_method, "_train.csv")
+    df <- fread(file_path_train)
+    file_path_test <- paste0("../data/", preprocessing_method, "_test.csv")
+    test <- fread(file_path_test)
   }
   # Splitting the Tokens column into a list of characters
   df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
@@ -87,7 +99,11 @@ if(get_new_embeddings){
   path <- paste0("Embedding-Models/", file_name)
   source(path)
 } else{
-  file_name <- paste0(embedding_model, ".rds")
+  if(small_data){
+    file_name <- paste0(embedding_model, "_small.rds")
+  } else{
+    file_name <- paste0(embedding_model, ".rds")
+  }
   path <- paste0("../data/Models/", file_name)
   model <- readRDS(path)
 }

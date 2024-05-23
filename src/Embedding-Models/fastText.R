@@ -55,10 +55,11 @@ unlink("../data/fastText/logs_supervise.txt")
 
 print("Get words and write it to a txt file")
 if(small_data){
-  words <- readRDS("../data/variables/words_small.rds")
+  words_path <- paste0("../data/variables/", preprocessing_method, "_words_small.rds")
 }else{
-  sorting_order <- readRDS("../data/variables/words.rds")
+  words_path <- paste0("../data/variables/", preprocessing_method, "_words.rds")
 }
+words <- readRDS(words_path)
 
 words_file <- tempfile(fileext = ".txt")
 
