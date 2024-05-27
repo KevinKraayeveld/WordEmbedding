@@ -13,16 +13,17 @@ def main():
     test = pd.read_csv(path_to_test)
 
     start_time = time.time()
-    #df['Review_Embeddings'] = df['Review'].apply(elmo_embeddings)
-    test['Review_Embeddings'] = test['Review'].apply(elmo_embeddings)
+    df['Review_Embeddings'] = elmo_embeddings(list(df['Review']))
+    #test['Review_Embeddings'] = elmo_embeddings(list(test['Review']))
     #print(elmo_embeddings("Hi embed this please"))
+    #print(elmo_embeddings(example_sentences))
     end_time = time.time()
 
     print(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    print(test.head(10))
+    print(df.head(10))
     
-def elmo_embeddings(text):
+def elmo_embeddings(texts):
     # Define the URL for the ELMo model from TensorFlow Hub
     elmo_model_url = "https://tfhub.dev/google/elmo/3"
 
@@ -30,8 +31,8 @@ def elmo_embeddings(text):
     elmo_layer = hub.KerasLayer(elmo_model_url, trainable=False, name="elmo")
 
     # Compute ELMo embeddings for the input text tensor
-    embeddings = elmo_layer(tf.constant([text]))
-    embeddings = embeddings.numpy().tolist()[0]
+    embeddings = elmo_layer(tf.constant(texts))
+    embeddings = embeddings.numpy().tolist()
 
     return embeddings
 
