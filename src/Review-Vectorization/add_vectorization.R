@@ -12,46 +12,8 @@ library(data.table)
 
 start_time <- Sys.time()
 
-get_embeddings_gensim_model <- function(tokens) {
-  # Initialize an empty matrix to store embeddings
-  embedding_size <- model$vector_size
-  embeddings_matrix <- matrix(NA, nrow = length(tokens), ncol = embedding_size)
-  
-  # Fill the matrix with embeddings
-  for (i in seq_along(tokens)) {
-    token <- tokens[[i]]
-    embedding <- tryCatch({
-      model$get_vector(token)
-    }, error = function(e) {
-      rep(NA, embedding_size)
-    })
-    embeddings_matrix[i, ] <- embedding
-  }
-  
-  # Assign row names
-  rownames(embeddings_matrix) <- tokens
-  
-  return(embeddings_matrix)
-}
-
-get_embeddings_matrix_model <- function(tokens){
-  embeddings_list <- lapply(tokens, function(token){
-    tryCatch({
-      embedding <- model[token, ]
-      return(embedding)
-    }, error = function(e) {
-      return(rep(NA, ncol(model)))
-    })
-  })
-  embeddings <- do.call(rbind, embeddings_list)
-  return(embeddings)
-}
-
-get_embeddings_fasttext_model <- function(tokens){
-  ft_word_vectors(model, tokens)
-}
-
 add_vectors <- function(tokens){
+  source("Review-Vectorization/get_embeddings.R")
   if (inherits(model, "gensim.models.keyedvectors.KeyedVectors")) {
     embeddings <- get_embeddings_gensim_model(tokens)
   } else if(inherits(model, "fasttext")){
