@@ -43,10 +43,10 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 1000)
+  sample_indices <- sample(total_rows, 4000)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 200)
+  sample_indices <- sample(total_rows, 1000)
   test <- test[sample_indices]
 }
 
@@ -81,8 +81,13 @@ test_tokens <- strsplit(test$Review, split = " ", fixed = T)
 
 print("Remove stop words")
 data(stop_words)
-tokens <- tokens_select(as.tokens(tokens), stop_words$word, selection = "remove")
-test_tokens <- tokens_select(as.tokens(test_tokens), stop_words$word, selection = "remove")
+# Remove negation words from the stop words list, so they don't get removed
+negation_words <- c("not", "no", "never", "don't", "shouldn't", "isn't", "aren't", "hadn't", "haven't")
+stop_words <- tokens_select(as.tokens(as.list(stop_words$word)), negation_words, selection = "remove")
+stop_words <- as.character(stop_words)
+
+tokens <- tokens_select(as.tokens(tokens), stop_words, selection = "remove")
+test_tokens <- tokens_select(as.tokens(test_tokens), stop_words, selection = "remove")
 tokens <- as.list(tokens)
 test_tokens <- as.list(test_tokens)
 
