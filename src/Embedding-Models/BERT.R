@@ -20,14 +20,10 @@ builtins <- import_builtins() #built in python methods
 model <- transformer$TFAutoModel$from_pretrained("bert-base-uncased")
 tokenizer <- transformer$AutoTokenizer$from_pretrained('bert-base-uncased')
 
-df$Review <- lapply(df$Review_Tokens, function(token) {
-  paste(token, collapse = " ")
-})
-
 average_review <- function(review){
   # Tokenize review the BERT way
   tokenized <- tokenizer$encode_plus(review, 
-                                     max_length = 50L, 
+                                     max_length = 20L, 
                                      pad_to_max_length = TRUE, 
                                      return_tensors = "tf")
   
@@ -53,7 +49,7 @@ average_review <- function(review){
 pooler_review <- function(review){
   # Tokenize review the BERT way
   tokenized <- tokenizer$encode_plus(review, 
-                                     max_length = 50L, 
+                                     max_length = 20L, 
                                      pad_to_max_length = T, 
                                      return_tensors = "tf")
   
@@ -70,3 +66,11 @@ pooler_review <- function(review){
 df[, Review_Vector := lapply(df$Review, function(review){
   pooler_review(review)
 })]
+test[, Review_Vector := lapply(test$Review, function(review){
+  pooler_review(review)
+})]
+
+df[, c("Review_Tokens", "Review") := NULL]
+test[, c("Review_Tokens", "Review") := NULL]
+
+
