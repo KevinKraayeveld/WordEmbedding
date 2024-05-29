@@ -43,7 +43,7 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 10000)
+  sample_indices <- sample(total_rows, 1000)
   df <- df[sample_indices]
   total_rows <- nrow(test)
   sample_indices <- sample(total_rows, 200)
@@ -136,12 +136,15 @@ test$Review_Tokens <- test_tokens
 print("Remove tokens variable from working memory")
 rm(list = c("tokens", "test_tokens"))
 
-print("Remove unnecessary column")
-df[, Review := NULL]
-test[, Review := NULL]
-
 print("Remove rows with empty reviews after cleaning")
 df <- df[lengths(df$Review_Tokens) > 0, ]
+
+df$Review <- lapply(df$Review_Tokens, function(tokens) {
+  paste(tokens, collapse = " ")
+})
+test$Review <- lapply(test$Review_Tokens, function(tokens) {
+  paste(tokens, collapse = " ")
+})
 
 end_time <- Sys.time()
 # Total execution time
