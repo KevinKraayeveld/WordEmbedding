@@ -24,7 +24,6 @@ get_embeddings_gensim_model <- function(tokens) {
     embedding <- tryCatch({
       model$get_vector(token)
     }, error = function(e) {
-      rep(NA, embedding_size)
     })
     embeddings_matrix[i, ] <- embedding
   }
@@ -41,7 +40,6 @@ get_embeddings_matrix_model <- function(tokens){
       embedding <- model[token, ]
       return(embedding)
     }, error = function(e) {
-      return(rep(NA, ncol(model)))
     })
   })
   embeddings <- do.call(rbind, embeddings_list)
