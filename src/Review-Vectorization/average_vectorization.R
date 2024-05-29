@@ -34,7 +34,6 @@ print("get word embeddings and average them")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]
-
 test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]
@@ -49,3 +48,6 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 print("remove model from working session")
 #rm(model)
+
+df[, c("Review_Tokens", "Review") := NULL]
+test[, c("Review_Tokens", "Review") := NULL]

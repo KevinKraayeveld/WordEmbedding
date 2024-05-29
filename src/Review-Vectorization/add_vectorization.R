@@ -32,6 +32,10 @@ add_vectors <- function(tokens){
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]
+test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
+  add_vectors(tokens)
+})]
+
 
 # Total execution time
 total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
@@ -43,4 +47,5 @@ print("remove model from working session")
 #rm(model)
 
 print("remove unnecessary columns")
-df[, Token_index := NULL]
+df[, c("Review_Tokens", "Review") := NULL]
+test[, c("Review_Tokens", "Review") := NULL]

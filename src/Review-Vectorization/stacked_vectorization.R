@@ -28,9 +28,14 @@ print("Stack embeddings")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   vector_stacking(tokens)
 })]
+test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
+  vector_stacking(tokens)
+})]
 
 pad_vector <- function(token_vector){
-  max_length <- max(lengths(df$Review_Vector))
+  max_length_df <- max(lengths(df$Review_Vector))
+  max_length_test <- max(lengths(test$Review_Vector))
+  max_length <- max(max_length_test, max_length_df)
   zeros_to_add <- max_length - length(token_vector)
   padded_vector <- c(token_vector, rep(0, zeros_to_add))
   return(padded_vector)
@@ -38,6 +43,7 @@ pad_vector <- function(token_vector){
 
 print("add zeros")
 df[, Review_Vector := lapply(Review_Vector, pad_vector)]
+test[, Review_Vector := lapply(Review_Vector, pad_vector)]
 
 end_time <- Sys.time()
 
@@ -51,5 +57,6 @@ print("remove model from working session")
 #rm(model)
 
 print("remove unnecessary columns")
-df[, Token_index := NULL]
+df[, c("Review_Tokens", "Review") := NULL]
+test[, c("Review_Tokens", "Review") := NULL]s
     
