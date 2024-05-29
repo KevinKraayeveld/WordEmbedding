@@ -24,10 +24,13 @@ library(parallel)
 num_cores <- detectCores()
 
 setDTthreads(threads = num_cores)
+
+readRenviron("../.env")
+python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE}
-get_new_data <- F
+get_new_data <- T
 
 # Choose preprocessing method
 # - complete_cleaning
@@ -46,7 +49,7 @@ small_data <- T
 # - "pretrained_word2vec"
 # - "pretrained_glove"
 # - "pretrained_fasttext"
-embedding_model <- "pretrained_fasttext"
+embedding_model <- "BERT"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T

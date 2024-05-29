@@ -11,7 +11,7 @@ for (package in packages) {
 library(reticulate)
 library(data.table)
 
-use_python("C:/Users/kevin/AppData/Local/Programs/Python/Python311/python.exe")
+use_python(python_path)
 
 transformer <- reticulate::import('transformers')
 tf <- reticulate::import('tensorflow')
