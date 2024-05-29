@@ -9,8 +9,8 @@ for (package in packages) {
 
 library(data.table)
 
-if (file.exists("../pretrained_models/glove.840B.300d.txt")) {
-  model <- fread("../pretrained_models/glove.840B.300d.txt", sep = " ", quote = "")
+if (file.exists("../pretrained_models/glove.42B.300d.txt")) {
+  model <- fread("../pretrained_models/glove.42B.300d.txt", sep = " ", quote = "")
   row_names <- model[[1]]
   model <- as.matrix(model[, -1, with = FALSE])
   
@@ -18,7 +18,7 @@ if (file.exists("../pretrained_models/glove.840B.300d.txt")) {
   colnames(model) <- NULL
   
   saveRDS(model, "../pretrained_models/pretrained_glove.rds")
-  unlink("../pretrained_models/glove.840B.300d.txt")
+  unlink("../pretrained_models/glove.42B.300d.txt")
 } else{
   model <- readRDS("../pretrained_models/pretrained_glove.rds")
 }
@@ -27,12 +27,12 @@ if(small_data){
   train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary_small.rds")
   vocabulary <- readRDS(train_vocabulary_path)
   test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary_small.rds")
-  vocabulary <- readRDS(test_vocabulary_path)
+  test_vocabulary <- readRDS(test_vocabulary_path)
 } else{
   train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary.rds")
   vocabulary <- readRDS(train_vocabulary_path)
   test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary.rds")
-  vocabulary <- readRDS(test_vocabulary_path)
+  test_vocabulary <- readRDS(test_vocabulary_path)
 }
 
 full_vocabulary <- union(vocabulary$term, test_vocabulary$term)
