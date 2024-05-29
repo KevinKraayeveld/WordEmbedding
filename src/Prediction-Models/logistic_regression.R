@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table", "caret")
+packages <- c("data.table", "caret", "ggplot2")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -10,6 +10,7 @@ for (package in packages) {
 
 # Importing required libraries
 library(data.table)
+library(ggplot2)
 library(caret)
 
 start_time <- Sys.time()

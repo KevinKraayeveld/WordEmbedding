@@ -5,7 +5,7 @@ date: "2024-03-13"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 # List of required packages
@@ -29,8 +29,8 @@ readRenviron("../.env")
 python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
-```{r config, echo = FALSE}
-get_new_data <- T
+```{r config, echo = FALSE, warning = FALSE}
+get_new_data <- F
 
 # Choose preprocessing method
 # - complete_cleaning
@@ -46,10 +46,11 @@ small_data <- T
 # - "GloVe"
 # - "fastText"
 # - "BERT"
+# - "ELMO"
 # - "pretrained_word2vec"
 # - "pretrained_glove"
 # - "pretrained_fasttext"
-embedding_model <- "BERT"
+embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T
@@ -72,7 +73,7 @@ get_new_predictions <- TRUE
 
 ## Data preprocessing
 
-```{r read_cleaned_data, echo = FALSE}
+```{r read_cleaned_data, echo = FALSE, warning = FALSE}
 if(get_new_data){
   path <- paste0("Preprocessing/", preprocessing_method, ".R")
   source(path)
@@ -96,7 +97,7 @@ if(get_new_data){
 
 ## Embedding model
 
-```{r embedding_model, echo = FALSE}
+```{r embedding_model, echo = FALSE, warning = FALSE}
 if(get_new_embeddings){
   file_name <- paste0(embedding_model, ".R")
   path <- paste0("Embedding-Models/", file_name)
@@ -114,42 +115,44 @@ if(get_new_embeddings){
 
 ## Review vectorization
 
-```{r review_vectorization, echo = FALSE}
-if(create_new_vectors){
-  file_name <- paste0(vectorization_method, "_vectorization.R")
-  path <- paste0("Review-Vectorization/", file_name)
-  source(path)
-  if(small_data){
-    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train_small.csv")
-    path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test_small.csv")
-  }else{
-    path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train.csv")
-    path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test.csv")
-  }
-  fwrite(df, path2)
-  fwrite(test, path3)
-  } else{
+```{r review_vectorization, echo = FALSE, warning = FALSE}
+if((!(tolower(embedding_model) %in% tolower(c("ELMo", "BERT"))))){
+  if(create_new_vectors){
+    file_name <- paste0(vectorization_method, "_vectorization.R")
+    path <- paste0("Review-Vectorization/", file_name)
+    source(path)
     if(small_data){
-      file_name <- paste0(vectorization_method, "_", embedding_model, "train_small.csv")
-      file_name2 <- paste0(vectorization_method, "_", embedding_model, "test_small.csv")
+      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train_small.csv")
+      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test_small.csv")
     }else{
-      file_name <- paste0(vectorization_method, "_", embedding_model, "train.csv")
-      file_name2 <- paste0(vectorization_method, "_", embedding_model, "test.csv")
+      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train.csv")
+      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test.csv")
     }
-  path <- paste0("../data/Vectorized-Reviews/", file_name)
-  df <- fread(path)
-  df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
-  df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
-  path2 <- paste0("../data/Vectorized-Reviews/", file_name2)
-  test <- fread(path2)
-  test$Review_Vector <- strsplit(test$Review_Vector, "\\|")
-  test$Review_Vector <- lapply(test$Review_Vector, function(x) as.numeric(x))
-  }
+    fwrite(df, path2)
+    fwrite(test, path3)
+    } else{
+      if(small_data){
+        file_name <- paste0(vectorization_method, "_", embedding_model, "train_small.csv")
+        file_name2 <- paste0(vectorization_method, "_", embedding_model, "test_small.csv")
+      }else{
+        file_name <- paste0(vectorization_method, "_", embedding_model, "train.csv")
+        file_name2 <- paste0(vectorization_method, "_", embedding_model, "test.csv")
+      }
+    path <- paste0("../data/Vectorized-Reviews/", file_name)
+    df <- fread(path)
+    df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
+    df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
+    path2 <- paste0("../data/Vectorized-Reviews/", file_name2)
+    test <- fread(path2)
+    test$Review_Vector <- strsplit(test$Review_Vector, "\\|")
+    test$Review_Vector <- lapply(test$Review_Vector, function(x) as.numeric(x))
+    }
+}
 ```
 
 ## Prediction model
 
-```{r prediction_model, echo = FALSE}
+```{r prediction_model, echo = FALSE, warning = FALSE}
 if(get_new_predictions){
   file_name <- paste0(prediction_model, ".R")
   path <- paste0("Prediction-Models/", file_name)
@@ -163,6 +166,6 @@ if(get_new_predictions){
 
 ## Evaluation
 
-```{r evaluation, echo = FALSE}
+```{r evaluation, echo = FALSE, warning = FALSE}
 source("Evaluation/Evaluation.R")
 ```
