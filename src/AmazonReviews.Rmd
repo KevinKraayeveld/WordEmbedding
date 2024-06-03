@@ -33,10 +33,11 @@ python_path <- Sys.getenv("PYTHON_PATH")
 get_new_data <- F
 
 # Choose preprocessing method
-# - complete_cleaning
-# - no_stemming
+# - "complete_cleaning"
+# - "no_stemming"
+# - "minimal_cleaning"
 
-preprocessing_method <- "no_stemming"
+preprocessing_method <- "complete_cleaning"
 
 small_data <- T
 
@@ -97,7 +98,7 @@ if(get_new_data){
 
 ## Embedding model
 
-```{r embedding_model, echo = FALSE, warning = FALSE}
+```{r embedding_model, echo = FALSE, warning = FALSE, include = FALSE}
 if(get_new_embeddings){
   file_name <- paste0(embedding_model, ".R")
   path <- paste0("Embedding-Models/", file_name)

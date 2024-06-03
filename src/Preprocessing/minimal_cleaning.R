@@ -43,84 +43,44 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 80)
+  sample_indices <- sample(total_rows, 500)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 20)
+  sample_indices <- sample(total_rows, 100)
   test <- test[sample_indices]
 }
 
 start_time <- Sys.time()
 
 # Remove stop words, punctuation, whitespace, numbers and make everything lower case
-print("Remove punctuation")
-df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
-print("Remove numbers")
-df$Review <- removeNumbers(df$Review)
-test$Review <- removeNumbers(test$Review)
 print("Remove whitespace")
 df$Review <- stripWhitespace(df$Review)
 test$Review <- stripWhitespace(test$Review)
 print("Remove whitespaces at the first index")
 df$Review <- gsub("^\\s+", "", df$Review)
 test$Review <- gsub("^\\s+", "", test$Review)
-print("Remove punctuation again")
-df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
 print("Remove accents and turn to lowercase")
 df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
 test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
-print("Remove punctuation again")
-df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
 
 print("Create tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
 test_tokens <- strsplit(test$Review, split = " ", fixed = T)
 
-print("Remove stop words")
-data(stop_words)
-# Remove negation words from the stop words list, so they don't get removed
-negation_words <- c("not", "no", "never", "don't", "shouldn't", "isn't", "aren't", "hadn't", "haven't")
-stop_words <- tokens_select(as.tokens(as.list(stop_words$word)), negation_words, selection = "remove")
-stop_words <- as.character(stop_words)
-
-tokens <- tokens_select(as.tokens(tokens), stop_words, selection = "remove")
-test_tokens <- tokens_select(as.tokens(test_tokens), stop_words, selection = "remove")
-tokens <- as.list(tokens)
-test_tokens <- as.list(test_tokens)
-
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
 print("Create vocabulary")
 vocabulary <- create_vocabulary(itoken(tokens), ngram= c(1,1))
 test_vocabulary <- create_vocabulary(itoken(test_tokens), ngram= c(1,1))
-print("Prune vocabulary")
-pruned_vocabulary <- prune_vocabulary(vocabulary, term_count_min = 5)
 
 # Write the vocabulary to an RDS file
 print("Save vocabulary in rds file")
 if(small_data){
-  saveRDS(pruned_vocabulary, file = "../data/Variables/no_stemming_vocabulary_small.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/no_stemming_test_vocabulary_small.rds")
+  saveRDS(vocabulary, file = "../data/Variables/no_stemming_vocabulary_small.rds")
+  saveRDS(vocabulary, file = "../data/variables/no_stemming_test_vocabulary_small.rds")
 } else{
-  saveRDS(pruned_vocabulary, file = "../data/Variables/no_stemming_vocabulary.rds")
-  saveRDS(test_vocabulary, file = "../data/variables/no_stemming_test_vocabulary.rds")
+  saveRDS(vocabulary, file = "../data/Variables/no_stemming_vocabulary.rds")
+  saveRDS(vocabulary, file = "../data/variables/no_stemming_test_vocabulary.rds")
 }
-
-words_to_delete <- setdiff(vocabulary$term, pruned_vocabulary$term)
-
-print("Remove vocabulary from working directory")
-rm(list = c("vocabulary", "pruned_vocabulary"))
-
-print("Remove tokens that are not in the pruned vocabulary")
-remove_tokens <- Sys.time()
-
-tokens <- tokens_select(as.tokens(tokens), words_to_delete, selection = "remove")
-tokens <- as.list(tokens)
-test_tokens <- as.list(test_tokens)
-
-rm(words_to_delete)
 
 print("Save words")
 words <- unique(unlist(tokens))
