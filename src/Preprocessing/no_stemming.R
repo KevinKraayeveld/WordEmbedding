@@ -43,10 +43,14 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 80)
+  sample_indices <- sample(total_rows, 800)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 20)
+  sample_indices <- sample(total_rows, 200)
+  test <- test[sample_indices]
+} else{
+  total_rows <- nrow(test)
+  sample_indices <- sample(total_rows, 50000)
   test <- test[sample_indices]
 }
 
@@ -159,9 +163,9 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 if(small_data){
-  fwrite(df, "../data/no_stemming_train_small.csv")
-  fwrite(test, "../data/no_stemming_test_small.csv")
+  fwrite(df, "../data/Cleaned-Reviews/no_stemming_train_small.csv")
+  fwrite(test, "../data/Cleaned-Reviews/no_stemming_test_small.csv")
 } else{
-  fwrite(df, "../data/no_stemming_train.csv")
-  fwrite(test, "../data/no_stemming_test.csv")
+  fwrite(df, "../data/Cleaned-Reviews/no_stemming_train.csv")
+  fwrite(test, "../data/Cleaned-Reviews/no_stemming_test.csv")
 }

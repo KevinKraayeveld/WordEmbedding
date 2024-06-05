@@ -43,10 +43,14 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 500)
+  sample_indices <- sample(total_rows, 800)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 100)
+  sample_indices <- sample(total_rows, 200)
+  test <- test[sample_indices]
+} else{
+  total_rows <- nrow(test)
+  sample_indices <- sample(total_rows, 50000)
   test <- test[sample_indices]
 }
 
@@ -62,6 +66,12 @@ test$Review <- gsub("^\\s+", "", test$Review)
 print("Remove accents and turn to lowercase")
 df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
 test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
+print("Remove punctuation")
+df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
+test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
+print("Remove numbers")
+df$Review <- removeNumbers(df$Review)
+test$Review <- removeNumbers(test$Review)
 
 print("Create tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
@@ -75,11 +85,11 @@ test_vocabulary <- create_vocabulary(itoken(test_tokens), ngram= c(1,1))
 # Write the vocabulary to an RDS file
 print("Save vocabulary in rds file")
 if(small_data){
-  saveRDS(vocabulary, file = "../data/Variables/no_stemming_vocabulary_small.rds")
-  saveRDS(vocabulary, file = "../data/variables/no_stemming_test_vocabulary_small.rds")
+  saveRDS(vocabulary, file = "../data/Variables/minimal_cleaning_vocabulary_small.rds")
+  saveRDS(vocabulary, file = "../data/variables/minimal_cleaning_test_vocabulary_small.rds")
 } else{
-  saveRDS(vocabulary, file = "../data/Variables/no_stemming_vocabulary.rds")
-  saveRDS(vocabulary, file = "../data/variables/no_stemming_test_vocabulary.rds")
+  saveRDS(vocabulary, file = "../data/Variables/minimal_cleaning_vocabulary.rds")
+  saveRDS(vocabulary, file = "../data/variables/minimal_cleaning_test_vocabulary.rds")
 }
 
 print("Save words")
@@ -87,9 +97,9 @@ words <- unique(unlist(tokens))
 
 print("Save words")
 if(small_data){
-  saveRDS(words, "../data/Variables/no_stemming_words_small.rds")
+  saveRDS(words, "../data/Variables/minimal_cleaning_words_small.rds")
 } else{
-  saveRDS(words, "../data/Variables/no_stemming_words.rds")
+  saveRDS(words, "../data/Variables/minimal_cleaning_words.rds")
 }
 
 rm(words)
@@ -119,9 +129,9 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 # Write df to a CSV file
 if(small_data){
-  fwrite(df, "../data/no_stemming_train_small.csv")
-  fwrite(test, "../data/no_stemming_test_small.csv")
+  fwrite(df, "../data/Cleaned-Reviews/minimal_cleaning_train_small.csv")
+  fwrite(test, "../data/Cleaned-Reviews/minimal_cleaning_test_small.csv")
 } else{
-  fwrite(df, "../data/no_stemming_train.csv")
-  fwrite(test, "../data/no_stemming_test.csv")
+  fwrite(df, "../data/Cleaned-Reviews/minimal_cleaning_train.csv")
+  fwrite(test, "../data/Cleaned-Reviews/minimal_cleaning_test.csv")
 }
