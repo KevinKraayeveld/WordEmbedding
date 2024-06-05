@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table")
+packages <- c("data.table", "fastTextR")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -9,6 +9,13 @@ for (package in packages) {
 }
 
 library(data.table)
+library(fastTextR)
+
+if(!small_data){
+  total_rows <- nrow(df)
+  sample_indices <- sample(total_rows, 200000)
+  df <- df[sample_indices]
+}
 
 start_time <- Sys.time()
 

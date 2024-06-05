@@ -9,6 +9,8 @@ for (package in packages) {
 
 library(reticulate)
 
+df[, Review_Tokens := NULL]
+
 # Use the specified Python executable
 use_python(python_path)
 

@@ -13,6 +13,8 @@ library(data.table)
 library(tokenizers)
 library(parallel)
 
+df[, Review := NULL]
+
 start_time <- Sys.time()
 
 set.seed(100)
@@ -40,4 +42,20 @@ cat("Estimated execution time for full dataset is", total_execution_time*(400000
 
 print("save model in rds file")
 saveRDS(model, "../data/models/word2vec_skipgram.rds")
+
+# Remove OOV tokens from the test dataset
+
+if(small_data){
+  test_vocabulary <- readRDS("../data/Variables/complete_cleaning_test_vocabulary_small.rds")
+} else{
+  test_vocabulary <- readRDS("../data/Variables/complete_cleaning_test_vocabulary.rds")
+}
+
+test_tokens <- tokens(test$Review_Tokens)
+oov_tokens <- setdiff(test_vocabulary$term, rownames(model))
+filtered_tokens <- tokens_select(test_tokens, oov_tokens, selection = "remove")
+test$Review_Tokens <- as.list(filtered_tokens)
+
+print("Remove rows with empty reviews after cleaning")
+test <- test[lengths(test$Review_Tokens) > 0, ]
 

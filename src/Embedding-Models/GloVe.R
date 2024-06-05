@@ -14,7 +14,11 @@ library(text2vec)
 library(rsparse)
 library(parallel)
 
-start_time <- Sys.time()
+df[, Review := NULL]
+
+# Set the number of threads
+num_cores <- detectCores()
+options(mc.cores = num_cores)
 
 print("read vocabulary.rds")
 if(small_data){
@@ -28,6 +32,9 @@ if(small_data){
 print("Create tcm")
 iter <- itoken(df$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
+
+start_time <- Sys.time()
+
 tcm <- create_tcm(it = iter, 
                   vectorizer = vectorizer,
                   skip_grams_window = 5L)
@@ -42,10 +49,6 @@ glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
                          alpha = 0.75, # the alpha in weighting function formula
                          lambda = 0, # regularization parameter
                          shuffle = FALSE)
-
-# Set the number of threads
-num_cores <- detectCores()
-options(mc.cores = num_cores)
                   
 print("Train GloVe model")
 glove_model$fit_transform(x = tcm, # Co-occurence matrix
@@ -58,7 +61,7 @@ rm(tcm)
 print("Extract word embeddings")
 word_embeddings <- glove_model$components
 print("Turn model into matrix and transpose")
-# @TODO Fix this to use less memory
+# Transpose matrix
 model <- t(as.matrix(word_embeddings))
 
 end_time <- Sys.time()
@@ -75,3 +78,18 @@ if(small_data){
 } else{
   saveRDS(model, "../data/models/glove.rds")
 }
+
+# Remove OOV tokens from the test dataset
+  if(small_data){
+    test_vocabulary <- readRDS("../data/Variables/complete_cleaning_test_vocabulary_small.rds")
+  } else{
+    test_vocabulary <- readRDS("../data/Variables/complete_cleaning_test_vocabulary.rds")
+  }
+  
+test_tokens <- tokens(test$Review_Tokens)
+oov_tokens <- setdiff(test_vocabulary$term, rownames(model))
+filtered_tokens <- tokens_select(test_tokens, oov_tokens, selection = "remove")
+test$Review_Tokens <- as.list(filtered_tokens)
+
+print("Remove rows with empty reviews after cleaning")
+test <- test[lengths(test$Review_Tokens) > 0, ]

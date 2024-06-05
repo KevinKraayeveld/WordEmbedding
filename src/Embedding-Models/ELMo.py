@@ -23,7 +23,7 @@ def main():
 
     print(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    df = df.drop(columns=['Review', 'Review_Tokens'])
+    df = df.drop(columns=['Review'])
 
     if small_data:
         df.to_csv(f"../../data/{preprocessing_method}_elmo_train_small.csv", index = False)

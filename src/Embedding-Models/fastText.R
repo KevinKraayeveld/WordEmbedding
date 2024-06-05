@@ -13,14 +13,9 @@ library(fastText)
 library(fastTextR)
 library(parallel)
 
+df[, Review_Tokens := NULL]
+
 start_time <- Sys.time()
-
-print("Turn tokens back to text")
-df$Review <- lapply(df$Review_Tokens, function(token) {
-  paste(token, collapse = " ")
-})
-
-df$Review <- as.character(df$Review)
 
 input_file <- tempfile(fileext = ".txt")
 
@@ -109,6 +104,8 @@ total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"
 cat("Total execution time:", total_execution_time, "seconds \n")
 cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
     "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+
+df[, Review := NULL]
 
 print("save model in rds file")
 saveRDS(model, "../data/models/fastText.rds")

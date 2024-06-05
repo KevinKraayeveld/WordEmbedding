@@ -11,6 +11,12 @@ for (package in packages) {
 library(data.table)
 library(fastTextR)
 
+if(!small_data){
+  total_rows <- nrow(df)
+  sample_indices <- sample(total_rows, 200000)
+  df <- df[sample_indices]
+}
+
 start_time <- Sys.time()
 
 source("Review-Vectorization/get_embeddings.R")
@@ -21,8 +27,7 @@ vector_averaging <- function(tokens){
   } else if(inherits(model, "fasttext")){
     embeddings <- get_embeddings_fasttext_model(tokens)
   } else{
-    #embeddings <- get_embeddings_matrix_model(tokens)
-    embeddings <- model[tokens, ]
+    embeddings <- get_embeddings_matrix_model(tokens)
   }
   if(is.null(dim(embeddings)[1])){
     vector <- embeddings

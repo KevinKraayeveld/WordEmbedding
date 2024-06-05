@@ -33,14 +33,7 @@ get_embeddings_gensim_model <- function(tokens) {
 }
 
 get_embeddings_matrix_model <- function(tokens){
-  embeddings_list <- lapply(tokens, function(token){
-    tryCatch({
-      embedding <- model[token, ]
-      return(embedding)
-    }, error = function(e) {
-    })
-  })
-  embeddings <- do.call(rbind, embeddings_list)
+  embeddings <- model[tokens, ]
   return(embeddings)
 }
 
