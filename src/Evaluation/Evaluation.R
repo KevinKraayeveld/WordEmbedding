@@ -13,8 +13,8 @@ specificity <- TN / (TN + FP)
 f1_score <- 2 * (precision * recall) / (precision + recall)
 
 # Print results
-print(paste("Accuracy:", round(accuracy, 3)))
-print(paste("Precision:", round(precision, 3)))
-print(paste("Recall:", round(recall, 3)))
-print(paste("Specificity:", round(specificity, 3)))
-print(paste("F1-score:", round(f1_score, 3)))
+print(paste("Accuracy:", round(accuracy, 4)))
+print(paste("Precision:", round(precision, 4)))
+print(paste("Recall:", round(recall, 4)))
+print(paste("Specificity:", round(specificity, 4)))
+print(paste("F1-score:", round(f1_score, 4)))
