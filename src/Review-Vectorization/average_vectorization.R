@@ -37,10 +37,11 @@ vector_averaging <- function(tokens){
   return(vector)
 }
 
-print("get word embeddings and average them")
+print("get df word embeddings and average them")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]
+print("get test word embeddings and average them")
 test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]

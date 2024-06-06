@@ -15,6 +15,7 @@ library(parallel)
 library(quanteda)
 
 df[, Review := NULL]
+test[, Review := NULL]
 
 start_time <- Sys.time()
 
@@ -26,7 +27,7 @@ num_cores <- detectCores()
 print("Create word embeddings")
 model <- word2vec(x = df$Review_Tokens, 
                   type = "cbow", 
-                  dim = 300, # Dimension of the word vectors
+                  dim = 50, # Dimension of the word vectors
                   window = 5L, # Skip length between words
                   iter = 50, # Number of training iterations
                   lr = 0.05, # Learning rate
@@ -57,3 +58,10 @@ test$Review_Tokens <- as.list(filtered_tokens)
 
 print("Remove rows with empty reviews after cleaning")
 test <- test[lengths(test$Review_Tokens) > 0, ]
+
+if(small_data){
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
+} else{
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+}
+fwrite(test, path)

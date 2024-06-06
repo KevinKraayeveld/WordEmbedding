@@ -44,10 +44,10 @@ set.seed(123)
 if(small_data){
   # Randomly select a number of rows
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 80000)
+  sample_indices <- sample(total_rows, 100000)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 20000)
+  sample_indices <- sample(total_rows, 25000)
   test <- test[sample_indices]
 } else{
   total_rows <- nrow(test)

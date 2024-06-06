@@ -30,7 +30,7 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- T
+get_new_data <- F
 
 # Choose preprocessing method
 # - "complete_cleaning"
@@ -103,6 +103,12 @@ if(get_new_embeddings){
   file_name <- paste0(embedding_model, ".R")
   path <- paste0("Embedding-Models/", file_name)
   source(path)
+  if(small_data){
+    model_path <- paste0("../data/Models/", embedding_model, "_small.rds")
+  } else{
+    model_path <- paste0("../data/Models/", embedding_model, ".rds")
+  }
+  saveRDS(model, model_path)
 } else{
   if(small_data){
     file_name <- paste0(embedding_model, "_small.rds")
@@ -119,6 +125,13 @@ if(get_new_embeddings){
 ```{r review_vectorization, echo = FALSE, warning = FALSE}
 if((!(tolower(embedding_model) %in% tolower(c("ELMo", "BERT"))))){
   if(create_new_vectors){
+    if(small_data){
+      test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
+    } else{
+      test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+    }
+    test <- fread(test_path)
+    test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
     file_name <- paste0(vectorization_method, "_vectorization.R")
     path <- paste0("Review-Vectorization/", file_name)
     source(path)
