@@ -37,6 +37,8 @@ add_vectors <- function(tokens){
   return(vector)
 }
 
+end_time <- Sys.time()
+
 print("get df embeddings and sum")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   add_vectors(tokens)
