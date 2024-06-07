@@ -19,8 +19,9 @@ if(!small_data){
 
 start_time <- Sys.time()
 
+source("Review-Vectorization/get_embeddings.R")
+
 add_vectors <- function(tokens){
-  source("Review-Vectorization/get_embeddings.R")
   if (inherits(model, "gensim.models.keyedvectors.KeyedVectors")) {
     embeddings <- get_embeddings_gensim_model(tokens)
   } else if(inherits(model, "fasttext")){
@@ -36,9 +37,11 @@ add_vectors <- function(tokens){
   return(vector)
 }
 
+print("get df embeddings and sum")
 df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]
+print("get test embeddings and sum")
 test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]

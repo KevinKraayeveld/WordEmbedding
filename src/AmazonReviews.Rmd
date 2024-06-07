@@ -54,14 +54,14 @@ small_data <- F
 embedding_model <- "word2vec_cbow"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
-get_new_embeddings <- T
+get_new_embeddings <- F
 
 create_new_vectors <- T
 # Choose vectorization method
 # - average
 # - stacked
 # - add
-vectorization_method <- "average"
+vectorization_method <- "add"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"

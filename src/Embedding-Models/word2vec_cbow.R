@@ -27,7 +27,7 @@ num_cores <- detectCores()
 print("Create word embeddings")
 model <- word2vec(x = df$Review_Tokens, 
                   type = "cbow", 
-                  dim = 50, # Dimension of the word vectors
+                  dim = 300, # Dimension of the word vectors
                   window = 5L, # Skip length between words
                   iter = 50, # Number of training iterations
                   lr = 0.05, # Learning rate
