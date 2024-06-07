@@ -22,13 +22,7 @@ start_time <- Sys.time()
 source("Review-Vectorization/get_embeddings.R")
 
 add_vectors <- function(tokens){
-  if (inherits(model, "gensim.models.keyedvectors.KeyedVectors")) {
-    embeddings <- get_embeddings_gensim_model(tokens)
-  } else if(inherits(model, "fasttext")){
-    embeddings <- get_embeddings_fasttext_model(tokens)
-  } else{
-    embeddings <- get_embeddings_matrix_model(tokens)
-  }
+  embeddings <- get_embeddings(tokens)
   if(is.null(dim(embeddings)[1])){
     vector <- embeddings
   } else{
