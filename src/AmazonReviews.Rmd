@@ -30,38 +30,39 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- F
+get_new_data <- T
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
-# - "minimal_cleaning"
+# - "minimal_cleaning" BROKEN: writes data wrong
 
-preprocessing_method <- "complete_cleaning"
+preprocessing_method <- "minimal_cleaning"
 
-small_data <- F
+small_data <- T
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
 # - "word2vec_skipgram"
 # - "GloVe"
-# - "fastText"
+# - "fastText" BROKEN: cannot handle OOV
 # - "BERT"
-# - "ELMO"
-# - "pretrained_word2vec"
+# - "ELMO" BROKEN: tensorflow error
+# - "pretrained_word2vec" VECTORIZATION TOO SLOW
 # - "pretrained_glove"
 # - "pretrained_fasttext"
-embedding_model <- "word2vec_cbow"
+# - "Lexicon"
+embedding_model <- "Lexicon"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
-get_new_embeddings <- F
+get_new_embeddings <- T
 
 create_new_vectors <- T
 # Choose vectorization method
 # - average
 # - stacked
 # - add
-vectorization_method <- "add"
+vectorization_method <- "average"
 
 # Choose prediction model. The choices are:
 # - "logistic_regression"
@@ -70,6 +71,21 @@ prediction_model <- "logistic_regression"
 # If you want to run the prediction file to get new predictions this is TRUE. 
 # If you have the predictions saved in an Rds file then this is FALSE.
 get_new_predictions <- TRUE
+```
+
+```{r process, include = FALSE}
+if(tolower(embedding_model) %in% c("elmo", "bert", "lexicon")){
+  run_vectorization <- F
+} else{
+  run_vectorization <- T
+}
+
+if(tolower(embedding_model) == "lexicon"){
+  run_prediction <- F
+} else{
+  run_prediction <- T
+}
+
 ```
 
 ## Data preprocessing
@@ -108,7 +124,12 @@ if(get_new_embeddings){
   } else{
     model_path <- paste0("../data/Models/", embedding_model, ".rds")
   }
-  saveRDS(model, model_path)
+  if(!tolower(embedding_model) == "lexicon"){
+    saveRDS(model, model_path)
+  } else{
+    lexicon_path <- "../data/Predictions/Lexicon.csv"
+    fwrite(test, lexicon_path)
+  }
 } else{
   if(small_data){
     file_name <- paste0(embedding_model, "_small.rds")
@@ -123,7 +144,7 @@ if(get_new_embeddings){
 ## Review vectorization
 
 ```{r review_vectorization, echo = FALSE, warning = FALSE}
-if((!(tolower(embedding_model) %in% tolower(c("ELMo", "BERT"))))){
+if(run_vectorization){
   if(create_new_vectors){
     if(small_data){
       test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
@@ -167,14 +188,16 @@ if((!(tolower(embedding_model) %in% tolower(c("ELMo", "BERT"))))){
 ## Prediction model
 
 ```{r prediction_model, echo = FALSE, warning = FALSE}
-if(get_new_predictions){
-  file_name <- paste0(prediction_model, ".R")
-  path <- paste0("Prediction-Models/", file_name)
-  source(path)
-} else{
-  file_name <- paste0(prediction_model, ".Rdata")
-  path <- paste0("Prediction-Models/", file_name)
-  load(path)
+if(run_prediction){
+  if(get_new_predictions){
+    file_name <- paste0(prediction_model, ".R")
+    path <- paste0("Prediction-Models/", file_name)
+    source(path)
+  } else{
+    file_name <- paste0(prediction_model, ".Rdata")
+    path <- paste0("Prediction-Models/", file_name)
+    load(path)
+  }
 }
 ```
 
