@@ -29,7 +29,7 @@ model <- word2vec(x = df$Review_Tokens,
                   type = "cbow", 
                   dim = 300, # Dimension of the word vectors
                   window = 5L, # Skip length between words
-                  iter = 50, # Number of training iterations
+                  iter = 200, # Number of training iterations
                   lr = 0.05, # Learning rate
                   threads = num_cores) # Number of threads to use
 # @TODO Fix this to use less memory
@@ -37,11 +37,7 @@ model <- as.matrix(model)
 
 end_time <- Sys.time()
 
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
-    "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 # Remove OOV tokens from the test dataset
 

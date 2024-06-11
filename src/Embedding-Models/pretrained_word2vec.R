@@ -1,6 +1,6 @@
 library(reticulate)
 
-use_python("C:/Users/kevin/AppData/Local/Programs/Python/Python311/python.exe")
+use_python(python_path)
 
 # Install gensim on python
 gensim <- import("gensim")

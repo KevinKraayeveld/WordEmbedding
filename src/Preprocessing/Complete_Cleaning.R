@@ -44,10 +44,10 @@ set.seed(123)
 if(small_data){
   # Randomly select a number of rows
   total_rows <- nrow(df)
-  sample_indices <- sample(total_rows, 100000)
+  sample_indices <- sample(total_rows, 800)
   df <- df[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 25000)
+  sample_indices <- sample(total_rows, 200)
   test <- test[sample_indices]
 } else{
   total_rows <- nrow(test)
@@ -157,10 +157,8 @@ test$Review <- lapply(test$Review_Tokens, function(tokens) {
 })
 
 end_time <- Sys.time()
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 # Write df to a CSV file
 if(small_data){

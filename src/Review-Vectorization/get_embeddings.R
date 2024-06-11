@@ -23,6 +23,7 @@ if(inherits(model, "gensim.models.keyedvectors.KeyedVectors")){
       embedding <- tryCatch({
         model$get_vector(token)
       }, error = function(e) {
+        rep(NA, embedding_size)
       })
       embeddings_matrix[i, ] <- embedding
     }

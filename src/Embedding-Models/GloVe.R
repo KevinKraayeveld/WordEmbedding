@@ -45,14 +45,14 @@ print("Initiate GloVe model")
 # Train GloVe embeddings
 glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
                          x_max = 100, # maximum number of co-occurrences to use in the weighting function
-                         learning_rate = 0.2, # learning rate for SGD
+                         learning_rate = 0.05, # learning rate for SGD
                          alpha = 0.75, # the alpha in weighting function formula
                          lambda = 0, # regularization parameter
                          shuffle = FALSE)
                   
 print("Train GloVe model")
 glove_model$fit_transform(x = tcm, # Co-occurence matrix
-                          n_iter = 50, # number of SGD iterations
+                          n_iter = 200, # number of SGD iterations
                           convergence_tol = -1) # defines early stopping strategy
 
 rm(tcm)
@@ -66,11 +66,7 @@ model <- t(as.matrix(word_embeddings))
 
 end_time <- Sys.time()
 
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
-    "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 print("save model in rds file")
 if(small_data){

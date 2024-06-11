@@ -49,6 +49,10 @@ if(small_data){
   sample_indices <- sample(total_rows, 200)
   test <- test[sample_indices]
 } else{
+  set.seed(123)
+  total_rows <- nrow(df)
+  sample_indices <- sample(total_rows, 20000)
+  df <- df[sample_indices]
   total_rows <- nrow(test)
   sample_indices <- sample(total_rows, 50000)
   test <- test[sample_indices]
@@ -66,12 +70,20 @@ test$Review <- gsub("^\\s+", "", test$Review)
 print("Remove accents and turn to lowercase")
 df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
 test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
-print("Remove punctuation")
-df$Review <- removePunctuation(df$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
-print("Remove numbers")
-df$Review <- removeNumbers(df$Review)
-test$Review <- removeNumbers(test$Review)
+
+print("Remove unwanted punctuation")
+
+remove_unwanted_punctuation <- function(text) {
+  # Replace all unwanted punctuation with an empty string
+  cleaned_text <- gsub("[^a-zA-Z0-9.,?!\\s]|([.,?!])\\1+", "\\1", text, perl = TRUE)
+  return(cleaned_text)
+}
+
+df[, Review :=  lapply(Review, remove_unwanted_punctuation)]
+test[, Review := lapply(Review, remove_unwanted_punctuation)]
+
+df$Review <- as.character(df$Review)
+test$Review <- as.character(test$Review)
 
 print("Create tokens")
 tokens <- strsplit(df$Review, split = " ", fixed = T)
@@ -122,10 +134,8 @@ test$Review <- lapply(test$Review_Tokens, function(tokens) {
 })
 
 end_time <- Sys.time()
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 # Write df to a CSV file
 if(small_data){

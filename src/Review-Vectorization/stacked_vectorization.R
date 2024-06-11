@@ -49,16 +49,11 @@ test[, Review_Vector := lapply(Review_Vector, pad_vector)]
 
 end_time <- Sys.time()
 
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time of review vectorization:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), 
-    "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 print("remove model from working session")
 #rm(model)
 
 print("remove unnecessary columns")
 df[, c("Review_Tokens", "Review") := NULL]
-test[, c("Review_Tokens", "Review") := NULL]s
-    
+test[, c("Review_Tokens", "Review") := NULL]

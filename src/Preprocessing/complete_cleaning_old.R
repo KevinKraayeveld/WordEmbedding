@@ -130,10 +130,8 @@ print("Remove rows with empty reviews after cleaning")
 df <- df[lengths(df$Review_Tokens) > 0, ]
 
 end_time <- Sys.time()
-# Total execution time
-total_execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
-cat("Total execution time:", total_execution_time, "seconds \n")
-cat("Estimated execution time for full dataset is", total_execution_time*(4000000/nrow(df)), "seconds. Which is", total_execution_time*(4000000/nrow(df))/3600, "hours \n")
+
+print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
 # Write df to a CSV file
 if(small_data){
