@@ -10,13 +10,14 @@ for (package in packages) {
 library(reticulate)
 
 df[, Review_Tokens := NULL]
+test[, Review_Tokens := NULL]
 
 # Use the specified Python executable
 use_python(python_path)
 
 py_run_string(paste0("small_data = '", small_data, "'"))
 py_run_string(paste0("preprocessing_method = '", preprocessing_method, "'"))
-source_python("ELMo.py")
+source_python("Embedding-Models/ELMo.py")
 
 if(small_data){
   df_path <- paste0("../data/", preprocessing_method, "_elmo_train_small.csv")
