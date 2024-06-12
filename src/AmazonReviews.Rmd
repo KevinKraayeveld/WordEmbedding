@@ -157,21 +157,21 @@ if(run_vectorization){
     path <- paste0("Review-Vectorization/", file_name)
     source(path)
     if(small_data){
-      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train_small.csv")
-      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test_small.csv")
+      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_train_small.csv")
+      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_test_small.csv")
     }else{
-      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "train.csv")
-      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "test.csv")
+      path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_train.csv")
+      path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_test.csv")
     }
     fwrite(df, path2)
     fwrite(test, path3)
     } else{
       if(small_data){
-        file_name <- paste0(vectorization_method, "_", embedding_model, "train_small.csv")
-        file_name2 <- paste0(vectorization_method, "_", embedding_model, "test_small.csv")
+        file_name <- paste0(vectorization_method, "_", embedding_model, "_train_small.csv")
+        file_name2 <- paste0(vectorization_method, "_", embedding_model, "_test_small.csv")
       }else{
-        file_name <- paste0(vectorization_method, "_", embedding_model, "train.csv")
-        file_name2 <- paste0(vectorization_method, "_", embedding_model, "test.csv")
+        file_name <- paste0(vectorization_method, "_", embedding_model, "_train.csv")
+        file_name2 <- paste0(vectorization_method, "_", embedding_model, "_test.csv")
       }
     path <- paste0("../data/Vectorized-Reviews/", file_name)
     df <- fread(path)
