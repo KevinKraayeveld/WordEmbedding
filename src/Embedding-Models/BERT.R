@@ -11,7 +11,7 @@ for (package in packages) {
 library(reticulate)
 library(data.table)
 
-df[, Review_Tokens := NULL]
+train[, Review_Tokens := NULL]
 
 use_python(python_path)
 
@@ -39,14 +39,14 @@ pooler_review <- function(review){
   return(as.vector(pooler))
 }
 
-df[, Review_Vector := lapply(df$Review, function(review){
+train[, Review_Vector := lapply(train$Review, function(review){
   pooler_review(review)
 })]
 test[, Review_Vector := lapply(test$Review, function(review){
   pooler_review(review)
 })]
 
-df[, Review := NULL]
+train[, Review := NULL]
 test[, Review := NULL]
 
 

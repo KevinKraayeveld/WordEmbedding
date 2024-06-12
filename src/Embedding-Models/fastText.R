@@ -13,7 +13,7 @@ library(fastText)
 library(fastTextR)
 library(parallel)
 
-df[, Review_Tokens := NULL]
+train[, Review_Tokens := NULL]
 test[, Review_Tokens := NULL]
 
 start_time <- Sys.time()
@@ -21,10 +21,10 @@ start_time <- Sys.time()
 input_file <- tempfile(fileext = ".txt")
 
 print("Write Review to text file")
-writeLines(df$Review, input_file)
+writeLines(train$Review, input_file)
 
-print("Remove Review from df")
-df[, Review := NULL]
+print("Remove Review from train")
+train[, Review := NULL]
 
 num_cores <- detectCores()
 
@@ -102,7 +102,7 @@ end_time <- Sys.time()
 
 print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
-df[, Review := NULL]
+train[, Review := NULL]
 test[, Review := NULL]
 
 print("save model in rds file")

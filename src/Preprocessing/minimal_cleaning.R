@@ -35,24 +35,20 @@ test[, Title := NULL]
 train$isPositive <- as.logical(train$isPositive)
 test$isPositive <- as.logical(test$isPositive)
 
-df <- train
-
-rm(list = c("train"))
-
 if(small_data){
   # Randomly select a number of rows
   set.seed(123)
-  total_rows <- nrow(df)
+  total_rows <- nrow(train)
   sample_indices <- sample(total_rows, 800)
-  df <- df[sample_indices]
+  train <- train[sample_indices]
   total_rows <- nrow(test)
   sample_indices <- sample(total_rows, 200)
   test <- test[sample_indices]
 } else{
   set.seed(123)
-  total_rows <- nrow(df)
+  total_rows <- nrow(train)
   sample_indices <- sample(total_rows, 20000)
-  df <- df[sample_indices]
+  train <- train[sample_indices]
   total_rows <- nrow(test)
   sample_indices <- sample(total_rows, 50000)
   test <- test[sample_indices]
@@ -60,18 +56,18 @@ if(small_data){
 
 start_time <- Sys.time()
 
-# Remove stop words, punctuation, whitespace, numbers and make everything lower case
+# Remove whitespace
 print("Remove whitespace")
-df$Review <- stripWhitespace(df$Review)
+train$Review <- stripWhitespace(train$Review)
 test$Review <- stripWhitespace(test$Review)
-print("Remove whitespaces at the first index")
-df$Review <- gsub("^\\s+", "", df$Review)
+# Remove whitespaces at first index
+train$Review <- gsub("^\\s+", "", train$Review)
 test$Review <- gsub("^\\s+", "", test$Review)
-print("Remove accents and turn to lowercase")
-df$Review <- char_tolower(stri_trans_general(df$Review, "Latin-ASCII"))
-test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
+# Turn everything lowercase
+train$Review <- tolower(train$Review)
+test$Review <- tolower(test$Review)
 
-print("Remove unwanted punctuation")
+# Remove punctuation, except for single comma's, periods, question marks and exclamation marks
 
 remove_unwanted_punctuation <- function(text) {
   # Replace all unwanted punctuation with an empty string
@@ -79,14 +75,14 @@ remove_unwanted_punctuation <- function(text) {
   return(cleaned_text)
 }
 
-df[, Review :=  lapply(Review, remove_unwanted_punctuation)]
+train[, Review :=  lapply(Review, remove_unwanted_punctuation)]
 test[, Review := lapply(Review, remove_unwanted_punctuation)]
 
-df$Review <- as.character(df$Review)
+train$Review <- as.character(train$Review)
 test$Review <- as.character(test$Review)
 
 print("Create tokens")
-tokens <- strsplit(df$Review, split = " ", fixed = T)
+tokens <- strsplit(train$Review, split = " ", fixed = T)
 test_tokens <- strsplit(test$Review, split = " ", fixed = T)
 
 # Create vocabulary to remove the words that appear less than 5 times in the vocabulary
@@ -117,16 +113,16 @@ if(small_data){
 rm(words)
 
 print("Create Review_Tokens column")
-df$Review_Tokens <- tokens
+train$Review_Tokens <- tokens
 test$Review_Tokens <- test_tokens
 
 print("Remove tokens variable from working memory")
 rm(list = c("tokens", "test_tokens"))
 
 print("Remove rows with empty reviews after cleaning")
-df <- df[lengths(df$Review_Tokens) > 0, ]
+train <- train[lengths(train$Review_Tokens) > 0, ]
 
-df$Review <- lapply(df$Review_Tokens, function(tokens) {
+train$Review <- lapply(train$Review_Tokens, function(tokens) {
   paste(tokens, collapse = " ")
 })
 test$Review <- lapply(test$Review_Tokens, function(tokens) {
@@ -137,11 +133,11 @@ end_time <- Sys.time()
 
 print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
 
-# Write df to a CSV file
+# Write train to a CSV file
 if(small_data){
-  fwrite(df, "../data/Cleaned-Reviews/minimal_cleaning_train_small.csv")
+  fwrite(train, "../data/Cleaned-Reviews/minimal_cleaning_train_small.csv")
   fwrite(test, "../data/Cleaned-Reviews/minimal_cleaning_test_small.csv")
 } else{
-  fwrite(df, "../data/Cleaned-Reviews/minimal_cleaning_train.csv")
+  fwrite(train, "../data/Cleaned-Reviews/minimal_cleaning_train.csv")
   fwrite(test, "../data/Cleaned-Reviews/minimal_cleaning_test.csv")
 }

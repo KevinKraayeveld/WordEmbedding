@@ -12,9 +12,9 @@ library(data.table)
 library(fastTextR)
 
 if(!small_data){
-  total_rows <- nrow(df)
+  total_rows <- nrow(train)
   sample_indices <- sample(total_rows, 200000)
-  df <- df[sample_indices]
+  train <- train[sample_indices]
 }
 
 start_time <- Sys.time()
@@ -31,8 +31,8 @@ vector_averaging <- function(tokens){
   return(vector)
 }
 
-print("get df word embeddings and average them")
-df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+print("get train word embeddings and average them")
+train[, Review_Vector := lapply(train$Review_Tokens, function(tokens){
   vector_averaging(tokens)
 })]
 print("get test word embeddings and average them")
@@ -47,5 +47,5 @@ print(paste("Total execution time:", round(end_time - start_time, 2), "seconds")
 print("remove model from working session")
 #rm(model)
 
-df[, c("Review_Tokens", "Review") := NULL]
+train[, c("Review_Tokens", "Review") := NULL]
 test[, c("Review_Tokens", "Review") := NULL]

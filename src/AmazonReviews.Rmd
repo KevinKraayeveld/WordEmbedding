@@ -97,17 +97,17 @@ if(get_new_data){
 } else if(!get_new_data & (get_new_predictions | create_new_vectors)){
   if(small_data){
     file_path_train <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_small.csv")
-    df <- fread(file_path_train)
+    train <- fread(file_path_train)
     file_path_test <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small.csv")
     test <- fread(file_path_test)
   } else{
     file_path_train <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train.csv")
-    df <- fread(file_path_train)
+    train <- fread(file_path_train)
     file_path_test <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test.csv")
     test <- fread(file_path_test)
   }
   # Splitting the Tokens column into a list of characters
-  df$Review_Tokens <- strsplit(df$Review_Tokens, "\\|")
+  train$Review_Tokens <- strsplit(train$Review_Tokens, "\\|")
   test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
 }
 ```
@@ -163,7 +163,7 @@ if(run_vectorization){
       path2 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_train.csv")
       path3 <- paste0("../data/Vectorized-Reviews/", vectorization_method,"_", embedding_model, "_test.csv")
     }
-    fwrite(df, path2)
+    fwrite(train, path2)
     fwrite(test, path3)
     } else{
       if(small_data){
@@ -174,9 +174,9 @@ if(run_vectorization){
         file_name2 <- paste0(vectorization_method, "_", embedding_model, "_test.csv")
       }
     path <- paste0("../data/Vectorized-Reviews/", file_name)
-    df <- fread(path)
-    df$Review_Vector <- strsplit(df$Review_Vector, "\\|")
-    df$Review_Vector <- lapply(df$Review_Vector, function(x) as.numeric(x))
+    train <- fread(path)
+    train$Review_Vector <- strsplit(train$Review_Vector, "\\|")
+    train$Review_Vector <- lapply(train$Review_Vector, function(x) as.numeric(x))
     path2 <- paste0("../data/Vectorized-Reviews/", file_name2)
     test <- fread(path2)
     test$Review_Vector <- strsplit(test$Review_Vector, "\\|")

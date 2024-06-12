@@ -19,13 +19,13 @@ start_time <- Sys.time()
 set.seed(123)  # For reproducibility
 
 # Convert Review_Vector column from list to matrix
-x_train <- t(sapply(df$Review_Vector, unlist))
+x_train <- t(sapply(train$Review_Vector, unlist))
 x_test <- t(sapply(test$Review_Vector, unlist))
 
-y_train <- df$isPositive
+y_train <- train$isPositive
 y_test <- test$isPositive
 
-rm(list = c("df", "test"))
+rm(list = c("train", "test"))
 
 # Define the logistic regression model
 logit_model <- glm(y_train ~ ., data = as.data.frame(x_train), family = binomial)

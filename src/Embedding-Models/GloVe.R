@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("word2vec", "data.table", "rsparse", "parallel")
+packages <- c("word2vec", "data.table", "rsparse", "parallel", "quanteda")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -13,8 +13,9 @@ library(data.table)
 library(text2vec)
 library(rsparse)
 library(parallel)
+library(quanteda)
 
-df[, Review := NULL]
+train[, Review := NULL]
 
 # Set the number of threads
 num_cores <- detectCores()
@@ -30,7 +31,7 @@ if(small_data){
 }
 
 print("Create tcm")
-iter <- itoken(df$Review_Tokens)
+iter <- itoken(train$Review_Tokens)
 vectorizer <- vocab_vectorizer(vocabulary)
 
 start_time <- Sys.time()
@@ -89,3 +90,10 @@ test$Review_Tokens <- as.list(filtered_tokens)
 
 print("Remove rows with empty reviews after cleaning")
 test <- test[lengths(test$Review_Tokens) > 0, ]
+
+if(small_data){
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
+} else{
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+}
+fwrite(test, path)

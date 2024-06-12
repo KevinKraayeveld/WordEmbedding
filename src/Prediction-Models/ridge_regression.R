@@ -16,11 +16,11 @@ start_time <- Sys.time()
 
 # Split the data into training and testing sets (20/80 split)
 set.seed(123)  # For reproducibility
-train_index <- createDataPartition(df$isPositive, p = 0.8, list = FALSE)
-train_data <- df[train_index]
-test_data <- df[-train_index]
+train_index <- createDataPartition(train$isPositive, p = 0.8, list = FALSE)
+train_data <- train[train_index]
+test_data <- train[-train_index]
 
-rm(list = c("train_index", "df"))
+rm(list = c("train_index", "train"))
 
 # Convert Review_Vector column from list to matrix
 x_train <- t(sapply(train_data$Review_Vector, unlist))

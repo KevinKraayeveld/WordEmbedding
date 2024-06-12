@@ -14,7 +14,7 @@ library(tokenizers)
 library(parallel)
 library(quanteda)
 
-df[, Review := NULL]
+train[, Review := NULL]
 
 start_time <- Sys.time()
 
@@ -23,7 +23,7 @@ set.seed(100)
 # Get the amount of CPU cores on this PC.
 num_cores <- detectCores()
 
-model <- word2vec(x = df$Review_Tokens, 
+model <- word2vec(x = train$Review_Tokens, 
                   type = "skip-gram", 
                   dim = 50, # Dimension of the word vectors
                   window = 5L, # Skip length between words

@@ -12,7 +12,7 @@ library(vader)
 library(data.table)
 library(dplyr)
 
-rm(df)
+rm(train)
 test[, Review_Tokens := NULL]
 
 start_time <- Sys.time()

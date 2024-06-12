@@ -12,9 +12,9 @@ library(data.table)
 library(fastTextR)
 
 if(!small_data){
-  total_rows <- nrow(df)
+  total_rows <- nrow(train)
   sample_indices <- sample(total_rows, 200000)
-  df <- df[sample_indices]
+  train <- train[sample_indices]
 }
 
 start_time <- Sys.time()
@@ -27,7 +27,7 @@ vector_stacking <- function(tokens){
 }
 
 print("Stack embeddings")
-df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+train[, Review_Vector := lapply(train$Review_Tokens, function(tokens){
   vector_stacking(tokens)
 })]
 test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
@@ -35,16 +35,16 @@ test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
 })]
 
 pad_vector <- function(token_vector){
-  max_length_df <- max(lengths(df$Review_Vector))
+  max_length_train <- max(lengths(train$Review_Vector))
   max_length_test <- max(lengths(test$Review_Vector))
-  max_length <- max(max_length_test, max_length_df)
+  max_length <- max(max_length_test, max_length_train)
   zeros_to_add <- max_length - length(token_vector)
   padded_vector <- c(token_vector, rep(0, zeros_to_add))
   return(padded_vector)
 }
 
 print("add zeros")
-df[, Review_Vector := lapply(Review_Vector, pad_vector)]
+train[, Review_Vector := lapply(Review_Vector, pad_vector)]
 test[, Review_Vector := lapply(Review_Vector, pad_vector)]
 
 end_time <- Sys.time()
@@ -55,5 +55,5 @@ print("remove model from working session")
 #rm(model)
 
 print("remove unnecessary columns")
-df[, c("Review_Tokens", "Review") := NULL]
+train[, c("Review_Tokens", "Review") := NULL]
 test[, c("Review_Tokens", "Review") := NULL]

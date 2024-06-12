@@ -12,9 +12,9 @@ library(data.table)
 library(fastTextR)
 
 if(!small_data){
-  total_rows <- nrow(df)
+  total_rows <- nrow(train)
   sample_indices <- sample(total_rows, 200000)
-  df <- df[sample_indices]
+  train <- train[sample_indices]
 }
 
 start_time <- Sys.time()
@@ -33,8 +33,8 @@ add_vectors <- function(tokens){
 
 end_time <- Sys.time()
 
-print("get df embeddings and sum")
-df[, Review_Vector := lapply(df$Review_Tokens, function(tokens){
+print("get train embeddings and sum")
+train[, Review_Vector := lapply(train$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]
 print("get test embeddings and sum")
@@ -48,5 +48,5 @@ print("remove model from working session")
 #rm(model)
 
 print("remove unnecessary columns")
-df[, c("Review_Tokens", "Review") := NULL]
+train[, c("Review_Tokens", "Review") := NULL]
 test[, c("Review_Tokens", "Review") := NULL]

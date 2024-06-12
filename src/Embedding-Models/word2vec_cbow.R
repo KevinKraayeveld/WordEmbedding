@@ -14,7 +14,7 @@ library(tokenizers)
 library(parallel)
 library(quanteda)
 
-df[, Review := NULL]
+train[, Review := NULL]
 test[, Review := NULL]
 
 start_time <- Sys.time()
@@ -25,7 +25,7 @@ set.seed(100)
 num_cores <- detectCores()
 
 print("Create word embeddings")
-model <- word2vec(x = df$Review_Tokens, 
+model <- word2vec(x = train$Review_Tokens, 
                   type = "cbow", 
                   dim = 300, # Dimension of the word vectors
                   window = 5L, # Skip length between words
