@@ -30,16 +30,16 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- T
+get_new_data <- F
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
 # - "minimal_cleaning" BROKEN: writes data wrong
 
-preprocessing_method <- "minimal_cleaning"
+preprocessing_method <- "complete_cleaning"
 
-small_data <- T
+small_data <- F
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
@@ -52,7 +52,7 @@ small_data <- T
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
-embedding_model <- "Lexicon"
+embedding_model <- "GloVe"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T

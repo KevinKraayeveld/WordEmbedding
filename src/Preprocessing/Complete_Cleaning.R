@@ -55,11 +55,11 @@ start_time <- Sys.time()
 
 # Remove stop words, punctuation, whitespace, numbers and make everything lower case
 print("Remove punctuation")
-train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
+train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = F)
+test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = F)
 print("Remove numbers")
-train$Review <- removeNumbers(train$Review)
-test$Review <- removeNumbers(test$Review)
+train$Review <- gsub("[0-9]", "", train$Review)
+test$Review <- gsub("[0-9]", "", test$Review)
 print("Remove whitespace")
 train$Review <- stripWhitespace(train$Review)
 test$Review <- stripWhitespace(test$Review)
@@ -67,14 +67,14 @@ print("Remove whitespaces at the first index")
 train$Review <- gsub("^\\s+", "", train$Review)
 test$Review <- gsub("^\\s+", "", test$Review)
 print("Remove punctuation again")
-train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
+train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = F)
+test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = F)
 print("Remove accents and turn to lowercase")
 train$Review <- char_tolower(stri_trans_general(train$Review, "Latin-ASCII"))
 test$Review <- char_tolower(stri_trans_general(test$Review, "Latin-ASCII"))
 print("Remove punctuation again")
-train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = TRUE)
-test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = TRUE)
+train$Review <- removePunctuation(train$Review, preserve_intra_word_contractions = F)
+test$Review <- removePunctuation(test$Review, preserve_intra_word_contractions = F)
 
 print("Create tokens")
 tokens <- strsplit(train$Review, split = " ", fixed = T)
@@ -160,7 +160,7 @@ test$Review <- lapply(test$Review_Tokens, function(tokens) {
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(paste("Total execution time:", end_time - start_time, "seconds"))
 
 # Write train to a CSV file
 if(small_data){
