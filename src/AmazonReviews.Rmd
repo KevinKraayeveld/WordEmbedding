@@ -30,16 +30,16 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- F
+get_new_data <- T
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
 # - "minimal_cleaning" BROKEN: writes data wrong
 
-preprocessing_method <- "complete_cleaning"
+preprocessing_method <- "no_stemming"
 
-small_data <- F
+small_data <- T
 
 # Choose embedding model. The choices are:
 # - "word2vec_cbow"
@@ -52,7 +52,7 @@ small_data <- F
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
-embedding_model <- "GloVe"
+embedding_model <- "fastText"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T
@@ -84,6 +84,12 @@ if(tolower(embedding_model) == "lexicon"){
   run_prediction <- F
 } else{
   run_prediction <- T
+}
+
+if(tolower(embedding_model) %in% c("word2vec_cbow", "word2vec_skipgram", "pretrained_word2vec", "pretrained_glove", "glove")){
+  no_oov <- T
+} else{
+  no_oov <- F
 }
 
 ```
@@ -146,13 +152,15 @@ if(get_new_embeddings){
 ```{r review_vectorization, echo = FALSE, warning = FALSE}
 if(run_vectorization){
   if(create_new_vectors){
-    if(small_data){
-      test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
-    } else{
-      test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+    if(no_oov){
+      if(small_data){
+        test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
+      } else{
+        test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+      }
+      test <- fread(test_path)
+      test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
     }
-    test <- fread(test_path)
-    test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
     file_name <- paste0(vectorization_method, "_vectorization.R")
     path <- paste0("Review-Vectorization/", file_name)
     source(path)
