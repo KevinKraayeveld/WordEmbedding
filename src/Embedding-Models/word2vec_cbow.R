@@ -39,6 +39,14 @@ end_time <- Sys.time()
 
 print(difftime(end_time, start_time))
 
+print("save model in rds file")
+if(small_data){
+  saveRDS(model, "../data/models/word2vec_cbow_small.rds")
+} else{
+  saveRDS(model, "../data/models/word2vec_cbow.rds")
+}
+
+
 # Remove OOV tokens from the test dataset
 
 if(small_data){

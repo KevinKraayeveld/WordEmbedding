@@ -30,14 +30,14 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- T
+get_new_data <- F
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
 # - "minimal_cleaning" BROKEN: writes data wrong
 
-preprocessing_method <- "no_stemming"
+preprocessing_method <- "complete_cleaning"
 
 small_data <- T
 
@@ -45,14 +45,14 @@ small_data <- T
 # - "word2vec_cbow"
 # - "word2vec_skipgram"
 # - "GloVe"
-# - "fastText" BROKEN: cannot handle OOV
+# - "fastText"
 # - "BERT"
 # - "ELMO" BROKEN: tensorflow error
 # - "pretrained_word2vec" VECTORIZATION TOO SLOW
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
-embedding_model <- "fastText"
+embedding_model <- "pretrained_word2vec"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T
@@ -86,7 +86,7 @@ if(tolower(embedding_model) == "lexicon"){
   run_prediction <- T
 }
 
-if(tolower(embedding_model) %in% c("word2vec_cbow", "word2vec_skipgram", "pretrained_word2vec", "pretrained_glove", "glove")){
+if(tolower(embedding_model) %in% c("word2vec_cbow", "word2vec_skipgram", "glove")){
   no_oov <- T
 } else{
   no_oov <- F
@@ -129,12 +129,6 @@ if(get_new_embeddings){
     model_path <- paste0("../data/Models/", embedding_model, "_small.rds")
   } else{
     model_path <- paste0("../data/Models/", embedding_model, ".rds")
-  }
-  if(!tolower(embedding_model) == "lexicon"){
-    saveRDS(model, model_path)
-  } else{
-    lexicon_path <- "../data/Predictions/Lexicon.csv"
-    fwrite(test, lexicon_path)
   }
 } else{
   if(small_data){

@@ -48,7 +48,7 @@ print(difftime(e, s))
 
 unlink("../data/fastText/logs_supervise.txt")
 
-print("Get words and write it to a txt file")
+print("Get train and test vocabulary and write the words to a txt file")
 if(small_data){
   words_path <- paste0("../data/variables/", preprocessing_method, "_words_small.rds")
   test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary_small.rds")

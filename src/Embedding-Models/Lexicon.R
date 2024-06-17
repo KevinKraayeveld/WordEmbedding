@@ -36,3 +36,5 @@ test <- test %>%
   ))
 
 confusion_matrix <- table(test$prediction, test$isPositive)
+
+fwrite(test, "../data/Predictions/Lexicon.csv")
