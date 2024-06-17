@@ -12,16 +12,14 @@ library(data.table)
 library(fastText)
 library(fastTextR)
 library(parallel)
-
-train[, Review_Tokens := NULL]
-test[, Review_Tokens := NULL]
+test[, Review := NULL]
 
 start_time <- Sys.time()
 
 input_file <- tempfile(fileext = ".txt")
 
 print("Write Review to text file")
-writeLines(train$Review, input_file)
+writeLines(as.character(train$Review), input_file)
 
 print("Remove Review from train")
 train[, Review := NULL]
@@ -29,7 +27,7 @@ train[, Review := NULL]
 num_cores <- detectCores()
 
 list_params <- list(command = "cbow",
-                   lr = 0.1,
+                   lr = 0.05,
                    dim = 50,
                    input = input_file,
                    output = file.path("../data/fastText/model"),
@@ -39,6 +37,7 @@ list_params <- list(command = "cbow",
 
 print("Train fastText model")
 s <- Sys.time()
+
 
 res <- fasttext_interface(list_params,
                           path_output = file.path("../data/fastText/logs_supervise.txt"))
@@ -52,10 +51,19 @@ unlink("../data/fastText/logs_supervise.txt")
 print("Get words and write it to a txt file")
 if(small_data){
   words_path <- paste0("../data/variables/", preprocessing_method, "_words_small.rds")
+  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary_small.rds")
 }else{
   words_path <- paste0("../data/variables/", preprocessing_method, "_words.rds")
+  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary.rds")
 }
-words <- readRDS(words_path)
+train_vocabulary_terms <- readRDS(words_path)
+test_vocabulary <- readRDS(test_vocabulary_path)
+
+rm(test_vocabulary_path, words_path)
+
+words <- union(train_vocabulary_terms, test_vocabulary$term)
+
+rm(train_vocabulary_terms, test_vocabulary)
 
 words_file <- tempfile(fileext = ".txt")
 
@@ -76,34 +84,31 @@ res <- fasttext_interface(list_params,
 unlink("../data/fastText/model.bin")
 unlink("../data/fastText/model.vec")
 
-lines <- readLines(vectors_file)
+embeddings <- readLines(vectors_file)
 
 print("Get word embeddings from txt file and put them in a list")
 # Remove unnecessary characters and split the input into word and numbers
-data <- lapply(lines, function(x) {
+embeddings_list <- lapply(embeddings, function(x) {
   parts <- strsplit(gsub("\\[\\d+\\] \"|\"", "", x), "\\s+")
   list(word = parts[[1]][1], numbers = as.numeric(parts[[1]][-1]))
 })
 
-rm(lines)
+rm(embeddings)
 
 print("Transform list to named matrix")
-model <- do.call(rbind, lapply(data, function(x) {
+model <- do.call(rbind, lapply(embeddings_list, function(x) {
   row.names <- x$word
   numbers <- x$numbers
   c(numbers)
 }))
 
-rownames(model) <- sapply(data, function(x) x$word)
+rownames(model) <- sapply(embeddings_list, function(x) x$word)
 
-rm(data)
+rm(embeddings_list)
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
-
-train[, Review := NULL]
-test[, Review := NULL]
+print(difftime(end_time, start_time))
 
 print("save model in rds file")
 saveRDS(model, "../data/models/fastText.rds")
