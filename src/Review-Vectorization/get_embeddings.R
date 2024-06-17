@@ -1,5 +1,5 @@
 # List of required packages
-packages <- c("data.table", "fastTextR")
+packages <- c("data.table", "fastTextR", "fastText")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -11,7 +11,7 @@ for (package in packages) {
 library(data.table)
 library(fastTextR)
 
-if(inherits(model, "gensim.models.keyedvectors.KeyedVectors")){
+if(embedding_model == "pretrained_word2vec"){
   get_embeddings <- function(tokens) {
     # Initialize an empty matrix to store embeddings
     embedding_size <- model$vector_size
@@ -33,7 +33,7 @@ if(inherits(model, "gensim.models.keyedvectors.KeyedVectors")){
     
     return(embeddings_matrix)
   }
-} else if(inherits(model, "fasttext")){
+} else if(embedding_model == "pretrained_fastText"){
   get_embeddings <- function(tokens){
     ft_word_vectors(model, tokens)
   }
