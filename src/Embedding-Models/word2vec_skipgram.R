@@ -35,7 +35,7 @@ model <- as.matrix(model)
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(difftime(end_time, start_time))
 
 print("save model in rds file")
 saveRDS(model, "../data/models/word2vec_skipgram.rds")

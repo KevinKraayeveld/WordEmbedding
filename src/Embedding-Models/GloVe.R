@@ -44,7 +44,7 @@ rm(vocabulary)
 
 print("Initiate GloVe model")
 # Train GloVe embeddings
-glove_model <- GloVe$new(rank = 50, # Dimensionality of the vector
+glove_model <- GloVe$new(rank = 300, # Dimensionality of the vector
                          x_max = 100, # maximum number of co-occurrences to use in the weighting function
                          learning_rate = 0.05, # learning rate for SGD
                          alpha = 0.75, # the alpha in weighting function formula
@@ -67,7 +67,7 @@ model <- t(as.matrix(word_embeddings))
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(difftime(end_time, start_time))
 
 print("save model in rds file")
 if(small_data){

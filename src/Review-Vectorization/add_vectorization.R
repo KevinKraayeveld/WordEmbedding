@@ -42,10 +42,7 @@ test[, Review_Vector := lapply(test$Review_Tokens, function(tokens){
   add_vectors(tokens)
 })]
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
-
-print("remove model from working session")
-#rm(model)
+print(difftime(end_time, start_time))
 
 print("remove unnecessary columns")
 train[, c("Review_Tokens", "Review") := NULL]

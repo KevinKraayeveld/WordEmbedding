@@ -39,10 +39,10 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(train)
-  sample_indices <- sample(total_rows, 800)
+  sample_indices <- sample(total_rows, 8000)
   train <- train[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 200)
+  sample_indices <- sample(total_rows, 2000)
   test <- test[sample_indices]
 } else{
   total_rows <- nrow(test)
@@ -153,7 +153,7 @@ test$Review <- lapply(test$Review_Tokens, function(tokens) {
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(difftime(end_time, start_time))
 
 # Write train to a CSV file
 if(small_data){

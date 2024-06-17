@@ -131,7 +131,7 @@ test$Review <- lapply(test$Review_Tokens, function(tokens) {
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(difftime(end_time, start_time))
 
 # Write train to a CSV file
 if(small_data){

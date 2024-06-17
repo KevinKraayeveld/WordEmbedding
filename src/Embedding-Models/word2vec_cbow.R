@@ -37,7 +37,7 @@ model <- as.matrix(model)
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
+print(difftime(end_time, start_time))
 
 # Remove OOV tokens from the test dataset
 

@@ -49,10 +49,7 @@ test[, Review_Vector := lapply(Review_Vector, pad_vector)]
 
 end_time <- Sys.time()
 
-print(paste("Total execution time:", round(end_time - start_time, 2), "seconds"))
-
-print("remove model from working session")
-#rm(model)
+print(difftime(end_time, start_time))
 
 print("remove unnecessary columns")
 train[, c("Review_Tokens", "Review") := NULL]
