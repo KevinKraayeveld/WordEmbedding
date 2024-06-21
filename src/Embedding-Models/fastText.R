@@ -28,7 +28,7 @@ num_cores <- detectCores()
 
 list_params <- list(command = "cbow",
                    lr = 0.05,
-                   dim = 50,
+                   dim = 300,
                    input = input_file,
                    output = file.path("../data/fastText/model"),
                    verbose = 2,

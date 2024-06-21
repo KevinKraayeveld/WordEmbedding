@@ -1,4 +1,4 @@
-packages <- c("data.table")
+packages <- c("data.table", "quanteda")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -8,6 +8,7 @@ for (package in packages) {
 }
 
 library(data.table)
+library(quanteda)
 
 if (file.exists("../pretrained_models/glove.42B.300d.txt")) {
   model <- fread("../pretrained_models/glove.42B.300d.txt", sep = " ", quote = "")
@@ -41,4 +42,34 @@ rows_to_keep <- rownames(model) %in% full_vocabulary
 model <- model[rows_to_keep, , drop = FALSE]
 
 rm(list = c("train_vocabulary_path", "test_vocabulary_path", "vocabulary", 
-            "test_vocabulary", "vocabulary", "rows_to_keep", "full_vocabulary"))
+            "rows_to_keep", "full_vocabulary"))
+
+test_tokens <- tokens(test$Review_Tokens)
+oov_tokens <- setdiff(test_vocabulary$term, rownames(model))
+filtered_tokens <- tokens_select(test_tokens, oov_tokens, selection = "remove")
+test$Review_Tokens <- as.list(filtered_tokens)
+
+print("Remove rows with empty reviews after cleaning")
+test <- test[lengths(test$Review_Tokens) > 0, ]
+
+if(small_data){
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
+} else{
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_no_oov.csv")
+}
+fwrite(test, path)
+
+train_tokens <- tokens(train$Review_Tokens)
+oov_tokens <- setdiff(train_vocabulary$term, rownames(model))
+filtered_tokens <- tokens_select(train_tokens, oov_tokens, selection = "remove")
+train$Review_Tokens <- as.list(filtered_tokens)
+
+print("Remove rows with empty reviews after cleaning")
+train <- train[lengths(train$Review_Tokens) > 0, ]
+
+if(small_data){
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_small_no_oov.csv")
+} else{
+  path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_no_oov.csv")
+}
+fwrite(train, path)

@@ -30,14 +30,14 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r config, echo = FALSE, warning = FALSE}
-get_new_data <- F
+get_new_data <- T
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
 # - "minimal_cleaning" BROKEN: writes data wrong
 
-preprocessing_method <- "complete_cleaning"
+preprocessing_method <- "no_stemming"
 
 small_data <- T
 
@@ -48,7 +48,7 @@ small_data <- T
 # - "fastText"
 # - "BERT"
 # - "ELMO" BROKEN: tensorflow error
-# - "pretrained_word2vec" VECTORIZATION TOO SLOW
+# - "pretrained_word2vec"
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
@@ -86,10 +86,16 @@ if(tolower(embedding_model) == "lexicon"){
   run_prediction <- T
 }
 
-if(tolower(embedding_model) %in% c("word2vec_cbow", "word2vec_skipgram", "glove")){
-  no_oov <- T
+if(tolower(embedding_model) %in% c("word2vec_cbow", "word2vec_skipgram", "glove", "pretrained_word2vec", "pretrained_glove")){
+  test_oov <- T
 } else{
-  no_oov <- F
+  test_oov <- F
+}
+
+if(tolower(embedding_model) %in% c("pretrained_word2vec", "pretrained_glove")){
+  train_oov <- T
+} else{
+  train_oov <- F
 }
 
 ```
@@ -146,7 +152,7 @@ if(get_new_embeddings){
 ```{r review_vectorization, echo = FALSE, warning = FALSE}
 if(run_vectorization){
   if(create_new_vectors){
-    if(no_oov){
+    if(test_oov){
       if(small_data){
         test_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test_small_no_oov.csv")
       } else{
@@ -154,6 +160,15 @@ if(run_vectorization){
       }
       test <- fread(test_path)
       test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
+    }
+    if(train_oov){
+      if(small_data){
+        train_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_small_no_oov.csv")
+      } else{
+        train_path <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_no_oov.csv")
+      }
+      train <- fread(train_path)
+      train$Review_Tokens <- strsplit(train$Review_Tokens, "\\|")
     }
     file_name <- paste0(vectorization_method, "_vectorization.R")
     path <- paste0("Review-Vectorization/", file_name)

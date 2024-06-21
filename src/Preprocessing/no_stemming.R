@@ -39,10 +39,10 @@ if(small_data){
   # Randomly select a number of rows
   set.seed(123)
   total_rows <- nrow(train)
-  sample_indices <- sample(total_rows, 8000)
+  sample_indices <- sample(total_rows, 4000)
   train <- train[sample_indices]
   total_rows <- nrow(test)
-  sample_indices <- sample(total_rows, 2000)
+  sample_indices <- sample(total_rows, 1000)
   test <- test[sample_indices]
 } else{
   total_rows <- nrow(test)
