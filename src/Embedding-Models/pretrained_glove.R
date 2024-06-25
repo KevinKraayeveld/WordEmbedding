@@ -24,24 +24,15 @@ if (file.exists("../pretrained_models/glove.42B.300d.txt")) {
   model <- readRDS("../pretrained_models/pretrained_glove.rds")
 }
 
-if(small_data){
-  train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary_small.rds")
-  vocabulary <- readRDS(train_vocabulary_path)
-  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary_small.rds")
-  test_vocabulary <- readRDS(test_vocabulary_path)
-} else{
-  train_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_vocabulary.rds")
-  vocabulary <- readRDS(train_vocabulary_path)
-  test_vocabulary_path <- paste0("../data/variables/", preprocessing_method, "_test_vocabulary.rds")
-  test_vocabulary <- readRDS(test_vocabulary_path)
-}
+test_vocabulary <- create_vocabulary(itoken(test$Review_Tokens))
+train_vocabulary <- create_vocabulary(itoken(train$Review_Tokens))
 
-full_vocabulary <- union(vocabulary$term, test_vocabulary$term)
+full_vocabulary <- union(train_vocabulary$term, test_vocabulary$term)
 
 rows_to_keep <- rownames(model) %in% full_vocabulary
 model <- model[rows_to_keep, , drop = FALSE]
 
-rm(list = c("train_vocabulary_path", "test_vocabulary_path", "vocabulary", 
+rm(list = c("train_vocabulary_path", "test_vocabulary_path",
             "rows_to_keep", "full_vocabulary"))
 
 test_tokens <- tokens(test$Review_Tokens)
