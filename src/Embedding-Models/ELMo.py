@@ -3,13 +3,12 @@ import tensorflow_hub as hub
 import tensorflow as tf
 import time
 import os
-import numpy as np
+import kagglehub
 
-# Define the URL for the ELMo model from TensorFlow Hub
-elmo_model_url = "https://tfhub.dev/google/elmo/3"
+elmo_model = kagglehub.model_download("google/elmo/tensorFlow1/elmo")
 
 # Create the KerasLayer using the ELMo model URL
-elmo_layer = hub.KerasLayer(elmo_model_url, trainable=False, name="elmo")
+elmo_layer = hub.KerasLayer(elmo_model, trainable=False, name="elmo")
 
 def main():
     os.chdir("C:/Users/kevin/Desktop/Master-Thesis/Wordembedding/src")
@@ -17,7 +16,8 @@ def main():
     small_data = True
     preprocessing_method = "complete_cleaning"
 
-    # small_data and preprocessing_method are defined in the python environment in the ELMo.R script. They can be used here
+    # small_data and preprocessing_method are defined in the python environment in the ELMo.R script. 
+    # They can be used here if this file is called from that script.
     if small_data:
         path_to_train = f"../data/Cleaned-Reviews/{preprocessing_method}_train_small.csv"
         path_to_test = f"../data/Cleaned-Reviews/{preprocessing_method}_test_small.csv"
@@ -28,19 +28,37 @@ def main():
     train = pd.read_csv(path_to_train)
     test = pd.read_csv(path_to_test)
 
+    train_embeddings = []
+    test_embeddings = []
+
     start_time = time.time()
-    train['Review_Vector'] = elmo_embeddings(list(train['Review']))
-    test['Review_Vector'] = elmo_embeddings(list(test['Review']))
+
+    batch_size = 500
+
+    print("Embed train reviews")
+    for i in range(0, len(train), batch_size):
+        batch = train['Review'].iloc[i:i+batch_size].tolist()
+        embeddings = elmo_embeddings(batch)
+        train_embeddings.extend(embeddings)
+
+    print("Embed test reviews")
+    for i in range(0, len(test), batch_size):
+        batch = test['Review'].iloc[i:i+batch_size].tolist()
+        embeddings = elmo_embeddings(batch)
+        test_embeddings.extend(embeddings)
+
+    train['Review_Vector'] = train_embeddings
+    test['Review_Vector'] = test_embeddings
     end_time = time.time()
 
     print(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    train = train.drop(columns=['Review'])
-    test = test.drop(columns=['Review'])
+    train = train.drop(columns=['Review', 'Review_Tokens'])
+    test = test.drop(columns=['Review', 'Review_Tokens'])
 
     if small_data:
-        train.to_csv(f"../data/Cleaned-Reviews/{preprocessing_method}_elmo_train_small.csv", index = False)
-        test.to_csv(f"../data/Cleaned-Reviews/{preprocessing_method}_elmo_test_small.csv", index = False)
+        train.to_csv(f"../data/Vectorized-Reviews/{preprocessing_method}_elmo_train_small.csv", index = False)
+        test.to_csv(f"../data/Vectorized-Reviews/{preprocessing_method}_elmo_test_small.csv", index = False)
     else:
         train.to_csv(f"../data/Vectorized-Reviews/{preprocessing_method}_elmo_train.csv", index = False)
         test.to_csv(f"../data/Vectorized-Reviews/{preprocessing_method}_elmo_test.csv", index = False)
