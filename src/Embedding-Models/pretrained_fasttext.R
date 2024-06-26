@@ -9,4 +9,4 @@ for (package in packages) {
 
 library(fastTextR)
 
-model <- ft_load("../pretrained_models/cc.en.300.bin")
+model <- ft_load("../pretrained_models/crawl-300d-2M-subword.bin")
