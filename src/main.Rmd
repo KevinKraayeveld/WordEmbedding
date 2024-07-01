@@ -1,5 +1,5 @@
 ---
-title: "AmazonReviews"
+title: "main"
 author: "Kevin Kraayeveld (589908)"
 date: "2024-03-13"
 output: html_document
@@ -29,15 +29,15 @@ readRenviron("../.env")
 python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
-```{r config, echo = FALSE, warning = FALSE}
+```{r settings, echo = FALSE, warning = FALSE}
 get_new_data <- T
 
 # Choose preprocessing method
 # - "complete_cleaning"
 # - "no_stemming"
-# - "minimal_cleaning" BROKEN: writes data wrong
+# - "minimal_cleaning"
 
-preprocessing_method <- "no_stemming"
+preprocessing_method <- "complete_cleaning"
 
 small_data <- T
 
@@ -52,7 +52,7 @@ small_data <- T
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
-embedding_model <- "pretrained_word2vec"
+embedding_model <- "fastText"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T

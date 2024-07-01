@@ -3,7 +3,11 @@
 *.Rdata
 *.rds
 *.zip
-vocabulary.rds
 *.bin
-*.txt
 .env
+logs_supervise.txt
+output_test.txt
+output_tokens.txt
+predict_valid.txt
+*.vec
+*.npy
