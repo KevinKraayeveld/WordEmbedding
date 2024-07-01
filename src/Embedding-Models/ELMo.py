@@ -11,10 +11,7 @@ elmo_model = kagglehub.model_download("google/elmo/tensorFlow1/elmo")
 elmo_layer = hub.KerasLayer(elmo_model, trainable=False, name="elmo")
 
 def main():
-    os.chdir("C:/Users/kevin/Desktop/Master-Thesis/Wordembedding/src")
-
-    small_data = True
-    preprocessing_method = "complete_cleaning"
+    os.chdir(path)
 
     # small_data and preprocessing_method are defined in the python environment in the ELMo.R script. 
     # They can be used here if this file is called from that script.

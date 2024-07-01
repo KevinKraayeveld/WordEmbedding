@@ -28,7 +28,7 @@ num_cores <- detectCores()
 
 list_params <- list(command = "cbow",
                    lr = 0.05,
-                   dim = 300,
+                   dim = 250,
                    input = input_file,
                    output = file.path("../data/fastText/model"),
                    verbose = 2,
@@ -76,39 +76,6 @@ vectors_file <- tempfile(fileext = ".txt")
 list_params <- list(command = "print-word-vectors",
                     model = file.path("../data/fastText/model.bin"))
 
-print("Get word embeddings and write to txt file")
-res <- fasttext_interface(list_params,
-                          path_input = words_file,
-                          path_output = vectors_file)
+model <- ft_load("../data/fastText/model.bin")
 
-unlink("../data/fastText/model.bin")
 unlink("../data/fastText/model.vec")
-
-embeddings <- readLines(vectors_file)
-
-print("Get word embeddings from txt file and put them in a list")
-# Remove unnecessary characters and split the input into word and numbers
-embeddings_list <- lapply(embeddings, function(x) {
-  parts <- strsplit(gsub("\\[\\d+\\] \"|\"", "", x), "\\s+")
-  list(word = parts[[1]][1], numbers = as.numeric(parts[[1]][-1]))
-})
-
-rm(embeddings)
-
-print("Transform list to named matrix")
-model <- do.call(rbind, lapply(embeddings_list, function(x) {
-  row.names <- x$word
-  numbers <- x$numbers
-  c(numbers)
-}))
-
-rownames(model) <- sapply(embeddings_list, function(x) x$word)
-
-rm(embeddings_list)
-
-end_time <- Sys.time()
-
-print(difftime(end_time, start_time))
-
-print("save model in rds file")
-saveRDS(model, "../data/models/fastText.rds")

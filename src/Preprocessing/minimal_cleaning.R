@@ -46,9 +46,6 @@ if(small_data){
   test <- test[sample_indices]
 } else{
   set.seed(123)
-  total_rows <- nrow(train)
-  sample_indices <- sample(total_rows, 20000)
-  train <- train[sample_indices]
   total_rows <- nrow(test)
   sample_indices <- sample(total_rows, 50000)
   test <- test[sample_indices]
@@ -133,6 +130,9 @@ end_time <- Sys.time()
 
 print(difftime(end_time, start_time))
 
+train_no_tokens <- train[, .(isPositive, Review)]
+test_no_tokens <- test[, .(isPositive, Review)]
+
 # Write train to a CSV file
 if(small_data){
   fwrite(train, "../data/Cleaned-Reviews/minimal_cleaning_train_small.csv")
@@ -141,3 +141,5 @@ if(small_data){
   fwrite(train, "../data/Cleaned-Reviews/minimal_cleaning_train.csv")
   fwrite(test, "../data/Cleaned-Reviews/minimal_cleaning_test.csv")
 }
+
+rm(c("train_no_tokens", "test_no_tokens"))

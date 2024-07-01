@@ -12,6 +12,7 @@ library(reticulate)
 library(data.table)
 
 train[, Review_Tokens := NULL]
+test[, Review_Tokens := NULL]
 
 use_python(python_path)
 
@@ -25,9 +26,10 @@ tokenizer <- transformer$AutoTokenizer$from_pretrained('bert-base-uncased')
 pooler_review <- function(review){
   # Tokenize review the BERT way
   tokenized <- tokenizer$encode_plus(review, 
-                                     max_length = 20L, 
+                                     max_length = 50L, 
                                      pad_to_max_length = T, 
-                                     return_tensors = "tf")
+                                     return_tensors = "tf",
+                                     verbose = FALSE)
   
   # Get input ids of the tokens
   input_ids <- tokenized$input_ids
@@ -42,9 +44,12 @@ pooler_review <- function(review){
 train[, Review_Vector := lapply(train$Review, function(review){
   pooler_review(review)
 })]
+fwrite(train, "../data/Vectorized-Reviews/BERT_train.csv")
+
 test[, Review_Vector := lapply(test$Review, function(review){
   pooler_review(review)
 })]
+fwrite(test, "../data/Vectorized-Reviews/BERT_train.csv")
 
 train[, Review := NULL]
 test[, Review := NULL]

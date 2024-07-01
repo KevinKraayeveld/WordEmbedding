@@ -17,6 +17,7 @@ use_python(python_path)
 
 py_run_string(paste0("small_data = '", small_data, "'"))
 py_run_string(paste0("preprocessing_method = '", preprocessing_method, "'"))
+py_run_string(paste0("path = '", getwd(), "'"))
 source_python("Embedding-Models/ELMo.py")
 
 if(small_data){

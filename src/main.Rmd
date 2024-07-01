@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 # List of required packages
-packages <- c("data.table", "parallel")
+packages <- c("data.table", "parallel", "fastTextR")
 
 # Check if each package is installed, if not, install it
 for (package in packages) {
@@ -20,6 +20,7 @@ for (package in packages) {
 
 library(data.table)
 library(parallel)
+library(fastTextR)
 
 num_cores <- detectCores()
 
@@ -30,7 +31,7 @@ python_path <- Sys.getenv("PYTHON_PATH")
 ```
 
 ```{r settings, echo = FALSE, warning = FALSE}
-get_new_data <- T
+get_new_data <- F
 
 # Choose preprocessing method
 # - "complete_cleaning"
@@ -47,12 +48,12 @@ small_data <- T
 # - "GloVe"
 # - "fastText"
 # - "BERT"
-# - "ELMO" BROKEN: tensorflow error
+# - "ELMO"
 # - "pretrained_word2vec"
 # - "pretrained_glove"
 # - "pretrained_fasttext"
 # - "Lexicon"
-embedding_model <- "fastText"
+embedding_model <- "ELMo"
 # If you want to run the embeddings file to get new embeddings this is TRUE. 
 # This has to be True for pretrained models
 get_new_embeddings <- T
@@ -67,10 +68,8 @@ vectorization_method <- "average"
 # Choose prediction model. The choices are:
 # - "logistic_regression"
 # - "ridge_regression"
-prediction_model <- "logistic_regression"
-# If you want to run the prediction file to get new predictions this is TRUE. 
-# If you have the predictions saved in an Rds file then this is FALSE.
-get_new_predictions <- TRUE
+prediction_model <- "ridge_regression"
+
 ```
 
 ```{r process, include = FALSE}
@@ -106,7 +105,7 @@ if(tolower(embedding_model) %in% c("pretrained_word2vec", "pretrained_glove")){
 if(get_new_data){
   path <- paste0("Preprocessing/", preprocessing_method, ".R")
   source(path)
-} else if(!get_new_data & (get_new_predictions | create_new_vectors)){
+} else if(!get_new_data & create_new_vectors){
   if(small_data){
     file_path_train <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_train_small.csv")
     train <- fread(file_path_train)
@@ -118,9 +117,14 @@ if(get_new_data){
     file_path_test <- paste0("../data/Cleaned-Reviews/", preprocessing_method, "_test.csv")
     test <- fread(file_path_test)
   }
-  # Splitting the Tokens column into a list of characters
-  train$Review_Tokens <- strsplit(train$Review_Tokens, "\\|")
-  test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
+  if(tolower(preprocessing_method) == "minimal_cleaning"){
+    train$Review_Tokens <- strsplit(train$Review, split = " ", fixed = T)
+    test$Review_Tokens <- strsplit(test$Review, split = " ", fixed = T)
+  } else{
+    # Splitting the Tokens column into a list of characters
+    train$Review_Tokens <- strsplit(train$Review_Tokens, "\\|")
+    test$Review_Tokens <- strsplit(test$Review_Tokens, "\\|")
+  }
 }
 ```
 
@@ -137,13 +141,17 @@ if(get_new_embeddings){
     model_path <- paste0("../data/Models/", embedding_model, ".rds")
   }
 } else{
-  if(small_data){
-    file_name <- paste0(embedding_model, "_small.rds")
+  if(tolower(embedding_model) == "fasttext"){
+    model <- ft_load("../data/fastText/model.bin")
   } else{
-    file_name <- paste0(embedding_model, ".rds")
+    if(small_data){
+      file_name <- paste0(embedding_model, "_small.rds")
+    } else{
+      file_name <- paste0(embedding_model, ".rds")
+    }
+    path <- paste0("../data/Models/", file_name)
+    model <- readRDS(path)
   }
-  path <- paste0("../data/Models/", file_name)
-  model <- readRDS(path)
 }
 ```
 
@@ -206,15 +214,9 @@ if(run_vectorization){
 
 ```{r prediction_model, echo = FALSE, warning = FALSE}
 if(run_prediction){
-  if(get_new_predictions){
-    file_name <- paste0(prediction_model, ".R")
-    path <- paste0("Prediction-Models/", file_name)
-    source(path)
-  } else{
-    file_name <- paste0(prediction_model, ".Rdata")
-    path <- paste0("Prediction-Models/", file_name)
-    load(path)
-  }
+  file_name <- paste0(prediction_model, ".R")
+  path <- paste0("Prediction-Models/", file_name)
+  source(path)
 }
 ```
 

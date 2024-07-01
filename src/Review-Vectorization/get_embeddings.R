@@ -11,7 +11,7 @@ for (package in packages) {
 library(data.table)
 library(fastTextR)
 
-if(embedding_model == "pretrained_fastText"){
+if(tolower(embedding_model) %in% c("pretrained_fasttext", "fasttext")){
   get_embeddings <- function(tokens){
     ft_word_vectors(model, tokens)
   }
